@@ -57,7 +57,7 @@ export default function ExceptionsManager({ exceptions, onChange }: ExceptionsMa
       {exceptions.length > 0 && (
         <div className="space-y-1">
           {exceptions.map((exc, i) => (
-            <div key={i} className="flex items-center justify-between rounded-[8px] bg-bg-input px-3 py-1.5 text-sm">
+            <div key={i} className="flex items-center justify-between rounded-control bg-bg-input px-3 py-1.5 text-sm">
               <span className="text-text-secondary">
                 {exc.date} {exc.reason && `— ${exc.reason}`}
               </span>

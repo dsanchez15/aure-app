@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-visual-theme="classic"
+      data-visual-theme="focus"
       suppressHydrationWarning
       className={`${monaSans.variable} ${commissioner.variable} ${fragmentMono.variable}`}
     >

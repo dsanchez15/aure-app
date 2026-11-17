@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Goal } from '@/types/goal'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { Button, Input, Select, Textarea } from '@/components/ui'
 
 interface DailyProgressForm {
   date: string
@@ -62,164 +63,110 @@ export default function DayTracker({ onSubmit, initialData }: DayTrackerProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+        <div role="alert" className="rounded-control border border-danger/30 bg-danger/10 p-3 font-label text-label-md text-danger">
           {error}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {t('progress.dateLabel')}
-        </label>
-        <input
-          type="date"
-          value={form.date}
-          onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-          className="w-full px-3 py-2 rounded-lg border"
-          style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          required
-        />
-      </div>
+      <Input
+        type="date"
+        label={t('progress.dateLabel')}
+        value={form.date}
+        onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+        required
+      />
 
       {goals.length > 0 && (
-        <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-{t('progress.goalLabel')}
-           </label>
-          <select
-            value={form.goalId}
-            onChange={e => setForm(f => ({ ...f, goalId: e.target.value }))}
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          >
-            <option value="">{t('progress.generalGoal')}</option>
-            {goals.map(g => (
-              <option key={g.id} value={g.id}>{g.title}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label={t('progress.goalLabel')}
+          value={form.goalId}
+          onChange={e => setForm(f => ({ ...f, goalId: e.target.value }))}
+        >
+          <option value="">{t('progress.generalGoal')}</option>
+          {goals.map(g => (
+            <option key={g.id} value={g.id}>{g.title}</option>
+          ))}
+        </Select>
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-{t('progress.plannedTimeLabel')}
-           </label>
-          <input
-            type="time"
-            value={form.plannedTime ?? ''}
-            onChange={e => setForm(f => ({ ...f, plannedTime: e.target.value || null }))}
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-{t('progress.actualTimeLabel')}
-           </label>
-          <input
-            type="time"
-            value={form.actualTime ?? ''}
-            onChange={e => setForm(f => ({ ...f, actualTime: e.target.value || null }))}
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          />
-        </div>
+        <Input
+          type="time"
+          label={t('progress.plannedTimeLabel')}
+          value={form.plannedTime ?? ''}
+          onChange={e => setForm(f => ({ ...f, plannedTime: e.target.value || null }))}
+        />
+        <Input
+          type="time"
+          label={t('progress.actualTimeLabel')}
+          value={form.actualTime ?? ''}
+          onChange={e => setForm(f => ({ ...f, actualTime: e.target.value || null }))}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-{t('progress.sleepHours')}
-           </label>
-          <input
-            type="number"
-            step="0.5"
-            min="0"
-            max="24"
-            value={form.sleepHours ?? ''}
-            onChange={e => setForm(f => ({ ...f, sleepHours: e.target.value ? parseFloat(e.target.value) : null }))}
-            placeholder="7.5"
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          />
-        </div>
+        <Input
+          type="number"
+          label={t('progress.sleepHours')}
+          step="0.5"
+          min="0"
+          max="24"
+          value={form.sleepHours ?? ''}
+          onChange={e => setForm(f => ({ ...f, sleepHours: e.target.value ? parseFloat(e.target.value) : null }))}
+          placeholder="7.5"
+        />
 
-        <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-{t('progress.studyHours')}
-           </label>
-          <input
-            type="number"
-            step="0.5"
-            min="0"
-            value={form.studyHours ?? ''}
-            onChange={e => setForm(f => ({ ...f, studyHours: e.target.value ? parseFloat(e.target.value) : null }))}
-            placeholder="2"
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          />
-        </div>
+        <Input
+          type="number"
+          label={t('progress.studyHours')}
+          step="0.5"
+          min="0"
+          value={form.studyHours ?? ''}
+          onChange={e => setForm(f => ({ ...f, studyHours: e.target.value ? parseFloat(e.target.value) : null }))}
+          placeholder="2"
+        />
 
-        <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-{t('progress.workHours')}
-           </label>
-          <input
-            type="number"
-            step="0.5"
-            min="0"
-            value={form.workHours ?? ''}
-            onChange={e => setForm(f => ({ ...f, workHours: e.target.value ? parseFloat(e.target.value) : null }))}
-            placeholder="1"
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          />
-        </div>
+        <Input
+          type="number"
+          label={t('progress.workHours')}
+          step="0.5"
+          min="0"
+          value={form.workHours ?? ''}
+          onChange={e => setForm(f => ({ ...f, workHours: e.target.value ? parseFloat(e.target.value) : null }))}
+          placeholder="1"
+        />
 
         <div className="flex items-end">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            fullWidth
+            className={form.gymCompleted ? 'border-success/40 bg-success/10 text-success' : ''}
             onClick={() => setForm(f => ({ ...f, gymCompleted: !f.gymCompleted }))}
-            className={`w-full px-3 py-2 rounded-lg border font-medium transition-colors ${
-              form.gymCompleted
-                ? 'bg-emerald-500 text-white border-emerald-500'
-                : 'border'
-            }`}
-            style={form.gymCompleted ? {} : { background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
           >
             {form.gymCompleted ? `✓ ${t('dashboard.gymDone')}` : t('dashboard.gym')}
-          </button>
+          </Button>
         </div>
       </div>
 
       {form.gymCompleted && form.sleepHours !== null && form.sleepHours < 7 && (
-        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-sm">
+        <div role="alert" className="rounded-control border border-warning/30 bg-warning/10 p-3 font-label text-label-md text-warning">
           {t('dashboard.gymSleepWarning')}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {t('progress.notesLabel')}
-        </label>
-        <textarea
-          value={form.notes}
-          onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-          placeholder={t('progress.notesPlaceholder')}
-          rows={2}
-          className="w-full px-3 py-2 rounded-lg border resize-none"
-          style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-        />
-      </div>
+      <Textarea
+        label={t('progress.notesLabel')}
+        value={form.notes}
+        onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+        placeholder={t('progress.notesPlaceholder')}
+        rows={2}
+        className="resize-none"
+      />
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-      >
+      <Button type="submit" fullWidth disabled={loading}>
         {loading ? t('progress.saving') : t('progress.saveProgress')}
-      </button>
+      </Button>
     </form>
   )
 }

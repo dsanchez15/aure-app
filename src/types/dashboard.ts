@@ -1,9 +1,9 @@
 export const MODULE_COLORS: Record<string, string> = {
-  reminder: '#3b82f6',
-  habit: '#10b981',
-  checklist: '#f59e0b',
-  todo: '#ef4444',
-  milestone: '#8b5cf6',
+  reminder: 'var(--color-info)',
+  habit: 'var(--color-success)',
+  checklist: 'var(--color-warning)',
+  todo: 'var(--color-danger)',
+  milestone: 'var(--color-primary)',
 }
 
 export interface HabitTracker {

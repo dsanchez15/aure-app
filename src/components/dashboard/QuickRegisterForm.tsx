@@ -86,7 +86,7 @@ export default function QuickRegisterForm({ onRegistered }: QuickRegisterFormPro
                 onClick={() => set('gymCompleted', !form.gymCompleted)}
                 className={`w-full rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                   form.gymCompleted
-                    ? 'border-transparent bg-success text-white'
+                    ? 'border-transparent bg-success text-text-inverse'
                     : 'border-border bg-bg-input text-text-secondary'
                 }`}
               >

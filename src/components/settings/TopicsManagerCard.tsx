@@ -39,7 +39,7 @@ export default function TopicsManagerCard({ topics, onCreateTopic, onDeleteTopic
             {topics.map((topic) => (
               <div
                 key={topic.id}
-                className="flex items-center gap-2 rounded-[8px] border border-border bg-bg-surface px-3 py-2"
+                className="flex items-center gap-2 rounded-control border border-border bg-bg-surface px-3 py-2"
               >
                 <span className="material-symbols-outlined text-sm text-text-muted">tag</span>
                 <span className="text-sm font-medium">{topic.name}</span>
@@ -56,7 +56,7 @@ export default function TopicsManagerCard({ topics, onCreateTopic, onDeleteTopic
         )}
 
         {showForm ? (
-          <form onSubmit={handleSubmit} className="space-y-3 rounded-[8px] bg-bg-surface-hover p-4">
+          <form onSubmit={handleSubmit} className="space-y-3 rounded-control bg-bg-surface-hover p-4">
             <Input
               value={newTopicName}
               onChange={(e) => setNewTopicName(e.target.value)}
@@ -82,7 +82,7 @@ export default function TopicsManagerCard({ topics, onCreateTopic, onDeleteTopic
         ) : (
           <button
             onClick={() => setShowForm(true)}
-            className="rounded-[8px] border border-primary/30 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+            className="rounded-control border border-primary/30 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
           >
             {t('settings.newTopic')}
           </button>

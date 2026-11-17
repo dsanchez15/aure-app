@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { Button, Field, Input, SegmentedControl, Textarea } from '@/components/ui'
 
 interface CheckInFormProps {
   onSubmit: (data: {
@@ -51,100 +52,71 @@ export default function CheckInForm({ onSubmit, initialData }: CheckInFormProps)
     }
   }
 
+  const fatigueOptions = [1, 2, 3, 4, 5].map((level) => ({
+    value: String(level),
+    label: String(level),
+  }))
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+        <div
+          role="alert"
+          className="rounded-control bg-danger/10 p-3 font-body text-body-md text-danger"
+        >
           {error}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {t('progress.weekOfLabel')}
-        </label>
-        <input
-          type="date"
-          value={form.weekStartDate}
-          onChange={e => setForm(f => ({ ...f, weekStartDate: e.target.value }))}
-          className="w-full px-3 py-2 rounded-lg border"
-          style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-          required
+      <Input
+        label={t('progress.weekOfLabel')}
+        type="date"
+        value={form.weekStartDate}
+        onChange={e => setForm(f => ({ ...f, weekStartDate: e.target.value }))}
+        required
+      />
+
+      <Field label={t('progress.fatigueLevelLabel')}>
+        <SegmentedControl
+          options={fatigueOptions}
+          value={String(form.fatigueLevel)}
+          onChange={value => setForm(f => ({ ...f, fatigueLevel: Number(value) }))}
+          ariaLabel={t('progress.fatigueLevelLabel')}
+          fullWidth
         />
-      </div>
+      </Field>
 
-      <div>
-        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {t('progress.fatigueLevelLabel')}
-        </label>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map(level => (
-            <button
-              key={level}
-              type="button"
-              onClick={() => setForm(f => ({ ...f, fatigueLevel: level }))}
-              className={`w-10 h-10 rounded-lg border font-medium transition-colors ${
-                form.fatigueLevel === level ? 'bg-primary text-white border-primary' : ''
-              }`}
-              style={form.fatigueLevel !== level ? { background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' } : {}}
-            >
-              {level}
-            </button>
-          ))}
-        </div>
-      </div>
+      <Input
+        label={t('progress.hoursCompletedLabel')}
+        type="number"
+        step="0.5"
+        min="0"
+        value={form.completedHours ?? ''}
+        onChange={e => setForm(f => ({ ...f, completedHours: e.target.value ? parseFloat(e.target.value) : null }))}
+        placeholder="25"
+      />
 
-      <div>
-        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {t('progress.hoursCompletedLabel')}
-        </label>
-        <input
-          type="number"
-          step="0.5"
-          min="0"
-          value={form.completedHours ?? ''}
-          onChange={e => setForm(f => ({ ...f, completedHours: e.target.value ? parseFloat(e.target.value) : null }))}
-          placeholder="25"
-          className="w-full px-3 py-2 rounded-lg border"
-          style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-        />
-      </div>
+      <Textarea
+        label={t('progress.deviationsLabel')}
+        value={form.deviations}
+        onChange={e => setForm(f => ({ ...f, deviations: e.target.value }))}
+        placeholder={t('progress.deviationsPlaceholder')}
+        rows={2}
+        className="resize-none"
+      />
 
-      <div>
-        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {t('progress.deviationsLabel')}
-        </label>
-        <textarea
-          value={form.deviations}
-          onChange={e => setForm(f => ({ ...f, deviations: e.target.value }))}
-          placeholder={t('progress.deviationsPlaceholder')}
-          rows={2}
-          className="w-full px-3 py-2 rounded-lg border resize-none"
-          style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-        />
-      </div>
+      <Textarea
+        label={t('progress.adjustmentNotesLabel')}
+        value={form.adjustmentNotes}
+        onChange={e => setForm(f => ({ ...f, adjustmentNotes: e.target.value }))}
+        placeholder={t('progress.adjustmentNotesPlaceholder')}
+        rows={2}
+        className="resize-none"
+      />
 
-      <div>
-        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {t('progress.adjustmentNotesLabel')}
-        </label>
-        <textarea
-          value={form.adjustmentNotes}
-          onChange={e => setForm(f => ({ ...f, adjustmentNotes: e.target.value }))}
-          placeholder={t('progress.adjustmentNotesPlaceholder')}
-          rows={2}
-          className="w-full px-3 py-2 rounded-lg border resize-none"
-          style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-      >
+      <Button type="submit" fullWidth disabled={loading}>
         {loading ? t('progress.saving') : t('progress.saveCheckIn')}
-      </button>
+      </Button>
     </form>
   )
 }

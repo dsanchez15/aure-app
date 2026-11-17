@@ -53,33 +53,35 @@ export default function ActiveSessionView({
       {/* Progress & Timer */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">
+          <span className="font-mono text-label-md tabular-nums text-text-secondary">
             {session.currentIndex + 1} / {session.questionIds.length}
           </span>
-          <div className="h-2 w-32 overflow-hidden rounded-full bg-bg-surface-hover">
-            <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          <div className="h-2 w-32 overflow-hidden rounded-pill bg-bg-surface-hover">
+            <div className="h-full bg-primary transition-surface" style={{ width: `${progress}%` }} />
           </div>
         </div>
         {timeLeft !== null && (
-          <span className={`font-mono text-sm font-bold ${timeLeft <= 10 ? 'text-danger' : ''}`}>
+          <span className={`font-mono text-label-md tabular-nums ${timeLeft <= 10 ? 'text-danger' : ''}`}>
             {formatTime(timeLeft)}
           </span>
         )}
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
+          className="text-danger hover:border-danger/40 hover:bg-danger/10"
           onClick={onAbandon}
-          className="rounded-[6px] border border-border px-2 py-1 text-xs text-danger hover:bg-danger/10"
         >
           {t('study.review.abandon')}
-        </button>
+        </Button>
       </div>
 
       {/* Question Card */}
       <Card padding="lg">
-        <p className="mb-6 text-lg font-medium">{question.question}</p>
+        <p className="mb-6 font-display text-title-lg text-text-primary">{question.question}</p>
 
         {!showFeedback ? (
           mode === 'direct' ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Input
                 value={userAnswer}
                 onChange={(e) => onUserAnswerChange(e.target.value)}
@@ -87,27 +89,27 @@ export default function ActiveSessionView({
                 placeholder={t('study.review.answerPlaceholder')}
                 aria-label={t('study.review.answerPlaceholder')}
                 autoFocus
-                className="py-3 text-base"
+                className="py-3"
               />
               <Button fullWidth size="lg" onClick={onSubmit} disabled={!userAnswer.trim()}>
                 {t('study.review.answer')}
               </Button>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {question.options
                 .filter((o) => o.trim())
                 .map((opt, i) => (
                   <button
                     key={i}
                     onClick={() => onSelectOption(i)}
-                    className={`w-full rounded-[8px] border px-4 py-3 text-left text-sm transition-all ${
+                    className={`w-full rounded-control border px-4 py-3 text-left font-body text-body-md transition-state ${
                       selectedOption === i
                         ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border bg-bg-input'
+                        : 'border-border bg-bg-input text-text-primary'
                     }`}
                   >
-                    <span className="mr-2 font-bold">{String.fromCharCode(65 + i)}.</span>
+                    <span className="mr-2 font-mono text-label-md text-text-secondary">{String.fromCharCode(65 + i)}.</span>
                     {opt}
                   </button>
                 ))}
@@ -117,22 +119,20 @@ export default function ActiveSessionView({
             </div>
           )
         ) : (
-          <div className="space-y-4">
-            <div
-              className={`rounded-[8px] p-4 ${isCorrect ? 'bg-success/10' : 'bg-danger/10'}`}
-            >
+          <div className="flex flex-col gap-4">
+            <div className={`rounded-control p-4 ${isCorrect ? 'bg-success/10' : 'bg-danger/10'}`}>
               <div className="mb-2 flex items-center gap-2">
                 <span className={`material-symbols-outlined ${isCorrect ? 'text-success' : 'text-danger'}`}>
                   {isCorrect ? 'check_circle' : 'cancel'}
                 </span>
-                <span className={`font-bold ${isCorrect ? 'text-success' : 'text-danger'}`}>
+                <span className={`font-label text-label-lg ${isCorrect ? 'text-success' : 'text-danger'}`}>
                   {isCorrect ? t('study.review.correct') : t('study.review.incorrect')}
                 </span>
               </div>
               {!isCorrect && (
-                <p className="text-sm text-text-secondary">
+                <p className="font-body text-body-md text-text-secondary">
                   {t('study.review.correctAnswerLabel')}{' '}
-                  <span className="font-medium">{correctAnswerText}</span>
+                  <span className="font-label text-label-lg text-text-primary">{correctAnswerText}</span>
                 </p>
               )}
             </div>

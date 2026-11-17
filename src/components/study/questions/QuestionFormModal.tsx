@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button, Input, Modal, Select, Textarea, Toggle } from '@/components/ui'
+import { Button, Input, Modal, SegmentedControl, Select, Textarea, Toggle } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { Question, QuestionType } from '@/types/study'
 import type { QuestionInput } from '@/lib/study/question-service'
@@ -91,10 +91,6 @@ export default function QuestionFormModal({ question, categories, topics, onSave
     }
   }
 
-  const sectionLabel = (text: string) => (
-    <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-text-muted">{text}</label>
-  )
-
   return (
     <Modal
       isOpen={true}
@@ -102,85 +98,78 @@ export default function QuestionFormModal({ question, categories, topics, onSave
       title={editingId ? t('study.questions.editQuestion') : t('study.questions.newQuestion')}
       maxWidth="xl"
     >
-      <form onSubmit={handleSave} className="space-y-5">
+      <form onSubmit={handleSave} className="flex flex-col gap-5">
         {/* Question */}
-        <div>
-          {sectionLabel(t('study.questions.questionLabel'))}
-          <Textarea
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
-            placeholder={t('study.questions.questionPlaceholder')}
-            rows={3}
-            className="resize-none"
-          />
-        </div>
+        <Textarea
+          label={t('study.questions.questionLabel')}
+          value={questionText}
+          onChange={(e) => setQuestionText(e.target.value)}
+          placeholder={t('study.questions.questionPlaceholder')}
+          rows={3}
+          className="resize-none"
+        />
 
         {/* Category + Topic */}
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            {sectionLabel(t('study.questions.categoryLabel'))}
-            <Select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value === '' ? '' : parseInt(e.target.value))}
-            >
-              <option value="">{t('study.questions.select')}</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <div>
-            {sectionLabel(t('study.questions.topicLabel'))}
-            <Select value={topic} onChange={(e) => setTopic(e.target.value)}>
-              <option value="">{t('study.questions.select')}</option>
-              {topics.map((topicName) => (
-                <option key={topicName} value={topicName}>
-                  {topicName}
-                </option>
-              ))}
-            </Select>
-          </div>
+          <Select
+            label={t('study.questions.categoryLabel')}
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value === '' ? '' : parseInt(e.target.value))}
+          >
+            <option value="">{t('study.questions.select')}</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            label={t('study.questions.topicLabel')}
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          >
+            <option value="">{t('study.questions.select')}</option>
+            {topics.map((topicName) => (
+              <option key={topicName} value={topicName}>
+                {topicName}
+              </option>
+            ))}
+          </Select>
         </div>
 
         {/* Answer type — hidden in dual mode */}
         {!supportsBothModes && (
-          <div>
-            {sectionLabel(t('study.questions.answerTypeLabel'))}
-            <div className="flex gap-2 rounded-[8px] bg-bg-surface-hover p-1">
-              {(['direct', 'multiple-choice'] as const).map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => setType(opt)}
-                  className={`flex-1 rounded-[6px] px-3 py-2 text-sm font-medium transition-all ${
-                    type === opt ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:bg-white/5'
-                  }`}
-                >
-                  {opt === 'direct' ? t('study.types.direct') : t('study.types.multipleChoice')}
-                </button>
-              ))}
-            </div>
-          </div>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 font-label text-label-md text-text-secondary">
+              {t('study.questions.answerTypeLabel')}
+            </legend>
+            <SegmentedControl<QuestionType>
+              ariaLabel={t('study.questions.answerTypeLabel')}
+              fullWidth
+              value={type}
+              onChange={setType}
+              options={[
+                { value: 'direct', label: t('study.types.direct') },
+                { value: 'multiple-choice', label: t('study.types.multipleChoice') },
+              ]}
+            />
+          </fieldset>
         )}
 
         {/* Direct answer */}
         {(type === 'direct' || supportsBothModes) && (
-          <div>
-            {sectionLabel(t('study.questions.directAnswerLabel'))}
-            <Input
-              value={directAnswer}
-              onChange={(e) => setDirectAnswer(e.target.value)}
-              placeholder={t('study.questions.directAnswerPlaceholder')}
-            />
-          </div>
+          <Input
+            label={t('study.questions.directAnswerLabel')}
+            value={directAnswer}
+            onChange={(e) => setDirectAnswer(e.target.value)}
+            placeholder={t('study.questions.directAnswerPlaceholder')}
+          />
         )}
 
         {/* Multiple choice options */}
         {(type === 'multiple-choice' || supportsBothModes) && (
-          <div className="space-y-3">
-            {sectionLabel(t('study.questions.optionsLabel'))}
+          <fieldset className="flex flex-col gap-3">
+            <legend className="mb-3 font-label text-label-md text-text-secondary">{t('study.questions.optionsLabel')}</legend>
             {options.map((opt, i) => (
               <div key={i} className="flex items-center gap-3">
                 <button
@@ -188,12 +177,11 @@ export default function QuestionFormModal({ question, categories, topics, onSave
                   onClick={() => setCorrectOptionIndex(i)}
                   role="radio"
                   aria-checked={correctOptionIndex === i}
-                  className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-                    correctOptionIndex === i ? 'border-primary' : ''
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-pill border-2 transition-state ${
+                    correctOptionIndex === i ? 'border-primary' : 'border-border-strong'
                   }`}
-                  style={correctOptionIndex !== i ? { borderColor: 'var(--color-border-strong)' } : undefined}
                 >
-                  {correctOptionIndex === i && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
+                  {correctOptionIndex === i && <span className="h-2.5 w-2.5 rounded-pill bg-primary" />}
                 </button>
                 <Input
                   value={opt}
@@ -206,33 +194,28 @@ export default function QuestionFormModal({ question, categories, topics, onSave
                 />
               </div>
             ))}
-          </div>
+          </fieldset>
         )}
 
         {/* Dual mode */}
         <div
-          className="cursor-pointer rounded-[8px] border p-4 transition-all hover:opacity-90"
-          style={{
-            background: supportsBothModes
-              ? 'color-mix(in srgb, var(--color-primary) 8%, transparent)'
-              : 'var(--color-bg-surface-hover)',
-            borderColor: supportsBothModes
-              ? 'color-mix(in srgb, var(--color-primary) 30%, transparent)'
-              : 'var(--color-border)',
-          }}
+          className={`cursor-pointer rounded-control border p-4 transition-state hover:opacity-90 ${
+            supportsBothModes ? 'border-primary/30 bg-primary/10' : 'border-border bg-bg-surface-hover'
+          }`}
           onClick={() => setSupportsBothModes(!supportsBothModes)}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span
-                className="material-symbols-outlined text-lg"
-                style={{ color: supportsBothModes ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                className={`material-symbols-outlined text-lg ${
+                  supportsBothModes ? 'text-primary' : 'text-text-muted'
+                }`}
               >
                 offline_bolt
               </span>
               <div>
-                <h4 className="text-sm font-semibold text-text-primary">{t('study.questions.dualMode')}</h4>
-                <p className="text-xs text-text-muted">{t('study.questions.dualModeDesc')}</p>
+                <h4 className="font-label text-label-lg text-text-primary">{t('study.questions.dualMode')}</h4>
+                <p className="font-label text-label-md text-text-muted">{t('study.questions.dualModeDesc')}</p>
               </div>
             </div>
             <Toggle
@@ -243,14 +226,14 @@ export default function QuestionFormModal({ question, categories, topics, onSave
           </div>
         </div>
 
-        {formError && <p className="text-sm font-medium text-danger">{formError}</p>}
+        {formError && <p className="font-label text-label-lg text-danger">{formError}</p>}
 
         {/* Footer */}
         <div className="flex gap-3 pt-2">
-          <Button variant="secondary" fullWidth onClick={onClose} className="border border-border">
+          <Button variant="secondary" fullWidth onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" fullWidth disabled={saving} className="font-semibold shadow-lg shadow-primary/20">
+          <Button type="submit" fullWidth disabled={saving}>
             {editingId ? t('study.questions.saveChanges') : t('study.questions.createQuestion')}
           </Button>
         </div>

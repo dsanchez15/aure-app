@@ -5,10 +5,10 @@
 
 | | |
 |---|---|
-| Tema nuevo | **Focus** — `data-visual-theme="focus"` |
-| Tema actual | **Classic** — `data-visual-theme="classic"` (default durante la migración) |
-| Tokens | `src/styles/tokens-base.css` (contrato) · `tokens-classic.css` · `tokens-focus.css` |
-| Styleguide | `/styleguide` (switcher classic/focus · light/dark) |
+| Tema | **Focus** — único tema de la app (`data-visual-theme="focus"` desde Ola 5) |
+| Classic | retirado de la app; `tokens-classic.css` queda solo como fallback SSR |
+| Tokens | `src/styles/tokens-base.css` (contrato) · `tokens-focus.css` |
+| Styleguide | `/styleguide` (light/dark; el tema visual ya no es conmutable) |
 
 ---
 
@@ -199,6 +199,8 @@ ADR-007: **SVG propio, sin librería**. Implementado en `src/components/ui/chart
 4. Cero valores crudos.
 5. Fila en este registro + entrada en `/styleguide`.
 
+El test `src/__tests__/properties/no-raw-values.test.ts` bloquea `#hex`, utilidades arbitrarias, `text-white` y paleta Tailwind cruda en todo `src/` (excepto `__tests__` y `app/api`). Está activo desde Ola 5.
+
 ---
 
 ## 5. Cómo agregar una pantalla nueva
@@ -212,7 +214,7 @@ ADR-007: **SVG propio, sin librería**. Implementado en `src/components/ui/chart
 
 ## 6. Candados de calidad
 
-- `pnpm test --run` — incluye tests de propiedades: contraste AA por variante (classic/focus, light/dark), completitud de tokens, tokens-only, ausencia de `!important`.
+- `pnpm test --run` — tests de propiedades: contraste AA (focus light/dark), completitud de tokens, tokens-only, ausencia de `!important` y `no-raw-values` (prohíbe `#hex`, arbitrarios, `text-white` y paleta Tailwind cruda en `src/`; las rutas de API quedan fuera porque sus colores son datos semilla).
 - `pnpm lint` — bloquea patrones prohibidos (en expansión durante la migración).
 - `/styleguide` — revisión visual de tokens y componentes.
 - Checklist de PR: sin hex · sin arbitrarios nuevos · estados completos · AA · móvil/desktop · dark · i18n es.

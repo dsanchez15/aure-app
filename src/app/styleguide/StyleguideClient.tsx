@@ -28,7 +28,6 @@ import {
 import { BottomNav, MobileTopbar, PageHeader } from '@/components/layout';
 import { SidebarProvider } from '@/components/SidebarContext';
 
-type VisualTheme = 'classic' | 'focus';
 type ColorMode = 'light' | 'dark';
 type CardLimit = '2' | '4' | '6' | '8';
 
@@ -68,7 +67,7 @@ const RADII = [
   { cls: 'rounded-sm', label: 'sm · 4px' },
   { cls: 'rounded-control', label: 'control · 8px' },
   { cls: 'rounded-card', label: 'card · 12px' },
-  { cls: 'rounded-lg', label: 'lg · 16px focus / 14px classic' },
+  { cls: 'rounded-lg', label: 'lg · 16px' },
   { cls: 'rounded-pill', label: 'pill · 9999px' },
 ] as const;
 
@@ -91,11 +90,11 @@ const REGISTRY = [
   { name: 'PageHeader · MobileTopbar · BottomNav · BrandMark', wave: 'Ola 2', status: 'implementado' },
   { name: 'Login · Panel · Tareas · Recordatorios · Ajustes', wave: 'Ola 3', status: 'implementado' },
   { name: 'ProgressRing · Sparkline · MiniBars (ui/charts, SVG propio)', wave: 'Ola 4', status: 'implementado' },
+  { name: 'Cierre Focus: tokens en todo src/, tema único y guard no-raw-values', wave: 'Ola 5', status: 'implementado' },
   { name: 'ListPage · DetailPage · FormPage · AuthShell', wave: 'Ola 4', status: 'pendiente' },
 ] as const;
 
 export default function StyleguideClient() {
-  const [visualTheme, setVisualTheme] = useState<VisualTheme>('classic');
   const [mode, setMode] = useState<ColorMode>('light');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -105,17 +104,9 @@ export default function StyleguideClient() {
   const [remember, setRemember] = useState(false);
 
   useEffect(() => {
-    const storedVisual = localStorage.getItem('app-visual-theme');
     const storedTheme = localStorage.getItem('app-theme');
-    setVisualTheme(storedVisual === 'focus' ? 'focus' : 'classic');
     setMode(storedTheme === 'light' ? 'light' : document.documentElement.classList.contains('dark') ? 'dark' : 'light');
   }, []);
-
-  const applyVisualTheme = (next: VisualTheme) => {
-    setVisualTheme(next);
-    localStorage.setItem('app-visual-theme', next);
-    document.documentElement.setAttribute('data-visual-theme', next);
-  };
 
   const applyMode = (next: ColorMode) => {
     setMode(next);
@@ -124,7 +115,7 @@ export default function StyleguideClient() {
   };
 
   return (
-    <div className="min-h-screen bg-background font-body text-text-primary">
+    <div className="min-h-screen bg-bg-base font-body text-text-primary">
       {/* Barra de control */}
       <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-4">
@@ -133,36 +124,15 @@ export default function StyleguideClient() {
             <h1 className="font-display text-headline-md">Styleguide</h1>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-control border border-border p-1" role="group" aria-label="Tema visual">
-              {(['classic', 'focus'] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => applyVisualTheme(value)}
-                  aria-pressed={visualTheme === value}
-                  className={`rounded-sm px-3 py-1.5 font-label text-label-md capitalize transition-state ${
-                    visualTheme === value ? 'bg-primary text-text-inverse' : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-            <div className="flex rounded-control border border-border p-1" role="group" aria-label="Modo de color">
-              {(['light', 'dark'] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => applyMode(value)}
-                  aria-pressed={mode === value}
-                  className={`rounded-sm px-3 py-1.5 font-label text-label-md transition-state ${
-                    mode === value ? 'bg-primary text-text-inverse' : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  {value === 'light' ? 'Claro' : 'Oscuro'}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl<ColorMode>
+              ariaLabel="Modo de color"
+              value={mode}
+              onChange={applyMode}
+              options={[
+                { value: 'light', label: 'Claro' },
+                { value: 'dark', label: 'Oscuro' },
+              ]}
+            />
           </div>
         </div>
       </header>
