@@ -12,6 +12,16 @@
 
 ---
 
+## 0. Cómo usar este documento
+
+1. Antes de escribir UI, lee §1 (reglas), §2 (capas), §3 (tokens) y §4 (registro).
+2. Reutiliza lo registrado: `ui/` → `layout/` → `patterns/` → módulo. Las pantallas solo componen.
+3. Si falta un valor, agrégalo como token en `src/styles/`; nunca lo hardcodees en el componente.
+4. Si implementas o cambias un componente, actualiza su fila en §4 y su demo en `/styleguide` en el mismo cambio.
+5. Si este documento y el código discrepan, corrige ambos antes de cerrar el PR.
+
+---
+
 ## 1. Reglas no negociables
 
 1. **Solo tokens.** Prohibido `#hex`, `rgba()` y valores arbitrarios (`rounded-[8px]`, `text-[13px]`) en componentes.
@@ -164,6 +174,18 @@ Los módulos antiguos (`components/AppLayout.tsx`, `components/Sidebar*.tsx`, `c
 |---|---|---|
 | InlineCreateBar, Toolbar, ListRow | 2–3 | falta |
 | ListPage, DetailPage, FormPage, SettingsPage, AuthShell | 3 | falta |
+
+### Gráficas (`ui/charts`, Ola 4)
+
+ADR-007: **SVG propio, sin librería**. `src/components/ProgressRing.tsx` es la referencia; en Ola 4 se promueve a `ui/charts` junto con `Sparkline` y `MiniBars` (barras verticales simples).
+
+| Regla | Detalle |
+|---|---|
+| Implementación | SVG inline con `viewBox`, sin dependencias ni `useEffect` para medir |
+| Color | Solo clases por token (`stroke-success`, `fill-primary/15`); nunca `stroke="#..."` |
+| Tamaños | `Sparkline` 64×20 · `MiniBars` barras de 8 px de ancho, gap 4, radio 2 · `ProgressRing` 48/64 con `stroke-width` 4/6 |
+| Accesibilidad | `role="img"` + `aria-label` con el resumen ("72% de cumplimiento semanal"); el número clave siempre visible como texto |
+| Ejes y tooltips | No se implementan hasta que una pantalla los necesite; si aparece una gráfica compleja, se evalúa visx *headless* para ese caso y se documenta aquí |
 
 ### Contrato mínimo de un componente
 
