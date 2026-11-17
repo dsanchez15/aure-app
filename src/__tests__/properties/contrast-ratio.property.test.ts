@@ -90,6 +90,8 @@ interface VariantData {
 const variantsData: VariantData[] = [
   { name: 'Classic Light', tokens: extractTokenValues('src/styles/tokens-base.css', ':root') },
   { name: 'Classic Dark', tokens: extractTokenValues('src/styles/tokens-classic.css', '.dark') },
+  { name: 'Focus Light', tokens: extractTokenValues('src/styles/tokens-focus.css', "[data-visual-theme='focus']") },
+  { name: 'Focus Dark', tokens: extractTokenValues('src/styles/tokens-focus.css', "[data-visual-theme='focus'].dark") },
 ]
 
 // Text/background pairs to check

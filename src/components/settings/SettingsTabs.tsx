@@ -25,21 +25,29 @@ export default function SettingsTabs({ activeTab, onTabChange }: SettingsTabsPro
   ]
 
   return (
-    <div className="flex gap-2 border-b border-border">
-      {tabs.map((tab) => (
-        <button
-          key={tab.key}
-          onClick={() => onTabChange(tab.key)}
-          className={`-mb-[1px] flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-all ${
-            activeTab === tab.key
-              ? 'border-primary text-primary'
-              : 'border-transparent text-text-muted hover:text-text-secondary'
-          }`}
-        >
-          <span className="material-symbols-outlined text-lg">{TAB_ICONS[tab.key]}</span>
-          {tab.label}
-        </button>
-      ))}
+    <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-border">
+      {tabs.map((tab) => {
+        const active = activeTab === tab.key
+        return (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onTabChange(tab.key)}
+            className={`-mb-px flex shrink-0 items-center gap-2 rounded-t-control border-b-2 px-4 py-3 font-label text-label-md transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              active
+                ? 'border-primary text-primary'
+                : 'border-transparent text-text-muted hover:bg-bg-surface-hover hover:text-text-primary'
+            }`}
+          >
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">
+              {TAB_ICONS[tab.key]}
+            </span>
+            {tab.label}
+          </button>
+        )
+      })}
     </div>
   )
 }

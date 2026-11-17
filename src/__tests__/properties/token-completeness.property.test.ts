@@ -61,6 +61,14 @@ const variants: VariantTokens[] = [
     selector: '.dark',
     tokens: extractTokenNames('src/styles/tokens-classic.css', '.dark'),
   },
+  {
+    selector: "[data-visual-theme='focus']",
+    tokens: extractTokenNames('src/styles/tokens-focus.css', "[data-visual-theme='focus']"),
+  },
+  {
+    selector: "[data-visual-theme='focus'].dark",
+    tokens: extractTokenNames('src/styles/tokens-focus.css', "[data-visual-theme='focus'].dark"),
+  },
 ]
 
 describe('Property 3: Completeness of tokens across all theme variants', () => {

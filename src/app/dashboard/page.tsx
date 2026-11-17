@@ -83,16 +83,15 @@ export default function DashboardPage() {
             {/* Overload Warning */}
             {isOverloaded && (
               <div
-                className="flex items-start gap-3 rounded-[8px] border p-4"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-danger) 8%, transparent)',
-                  borderColor: 'color-mix(in srgb, var(--color-danger) 30%, transparent)',
-                }}
+                role="status"
+                className="flex items-start gap-3 rounded-card border border-danger/30 bg-danger/10 p-4"
               >
-                <span className="material-symbols-outlined text-danger">warning</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-danger">
+                  warning
+                </span>
                 <div>
-                  <p className="text-sm font-medium text-danger">{t('dashboard.overloadWarning.title')}</p>
-                  <p className="mt-0.5 text-xs text-danger/80">
+                  <p className="font-label text-label-lg text-danger">{t('dashboard.overloadWarning.title')}</p>
+                  <p className="mt-0.5 font-label text-label-sm text-danger/80">
                     {t('dashboard.overloadWarning.message', { count: selectedWorkload.score })}
                   </p>
                 </div>

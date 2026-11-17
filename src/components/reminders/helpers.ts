@@ -4,7 +4,7 @@ type TranslateFn = (key: string, params?: Record<string, string | number>) => st
 
 export const reminderPriorityConfig: Record<ReminderPriority, { icon: string; iconClass: string; cardClass: string }> = {
   high: { icon: 'arrow_upward', iconClass: 'text-danger', cardClass: 'bg-danger/5' },
-  normal: { icon: 'remove', iconClass: 'reminder-prio-normal-icon', cardClass: '' },
+  normal: { icon: 'remove', iconClass: 'text-text-muted', cardClass: '' },
   low: { icon: 'arrow_downward', iconClass: 'text-info', cardClass: 'bg-info/5' },
 }
 
@@ -26,5 +26,5 @@ export function formatReminderDate(d: string, t: TranslateFn): ReminderDateDispl
   if (diff === 0) return { text: t('reminders.date.today'), className: 'text-warning font-medium' }
   if (diff === 1) return { text: t('reminders.date.tomorrow'), className: 'text-warning' }
   if (diff <= 3) return { text: t('reminders.date.daysUntil', { date: formatted, count: diff }), className: 'text-warning' }
-  return { text: formatted, className: 'reminder-date-default' }
+  return { text: formatted, className: 'text-text-secondary' }
 }

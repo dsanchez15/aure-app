@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button, Input, Select } from '@/components/ui'
+import { Button, Input, SegmentedControl, Select } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { TodoCategory, ViewMode, GroupBy, FilterStatus } from '@/types/todo'
 
@@ -39,35 +39,36 @@ export default function TodoFilters({ value, categories, onChange, onClear }: To
     onChange({ ...value, [key]: v })
 
   return (
-    <div className="space-y-2">
-      <Button variant="secondary" size="sm" onClick={() => setShowFilters(!showFilters)} aria-expanded={showFilters}>
-        <span className="material-symbols-outlined text-sm">filter_list</span>
-        {t('common.filter')}
-        {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-primary" />}
-      </Button>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <SegmentedControl<ViewMode>
+          ariaLabel={t('todos.title')}
+          size="sm"
+          options={VIEW_MODES.map((mode) => ({ value: mode, label: t(`todos.viewTabs.${mode}`) }))}
+          value={value.viewMode}
+          onChange={(mode) => set('viewMode', mode)}
+        />
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          aria-expanded={showFilters}
+        >
+          <span aria-hidden="true" className="material-symbols-outlined text-lg">
+            filter_list
+          </span>
+          {t('common.filter')}
+          {hasActiveFilters && <span className="h-2 w-2 rounded-pill bg-primary" />}
+        </Button>
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" onClick={onClear} className="text-danger">
+            {t('todos.clearFilters')}
+          </Button>
+        )}
+      </div>
 
       {showFilters && (
-        <div className="flex flex-wrap items-center gap-2">
-          {/* View Mode tabs */}
-          <div role="tablist" className="flex rounded-[8px] bg-bg-surface-hover p-1">
-            {VIEW_MODES.map((mode) => (
-              <button
-                key={mode}
-                role="tab"
-                aria-selected={value.viewMode === mode}
-                onClick={() => set('viewMode', mode)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
-                  value.viewMode === mode
-                    ? 'bg-bg-surface text-text-primary shadow-sm'
-                    : 'text-text-secondary'
-                }`}
-              >
-                {t(`todos.viewTabs.${mode}`)}
-              </button>
-            ))}
-          </div>
-
-          {/* Group By */}
+        <div className="flex flex-wrap items-center gap-2 rounded-card border border-border bg-bg-surface p-3">
           <Select
             fieldSize="sm"
             aria-label={t('todos.groupBy.none')}
@@ -81,31 +82,30 @@ export default function TodoFilters({ value, categories, onChange, onClear }: To
             <option value="status">{t('todos.groupBy.status')}</option>
           </Select>
 
-          {/* Search */}
-          <div className="relative min-w-[200px] flex-1">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">
-              search
-            </span>
+          <div className="relative min-w-52 flex-1">
             <Input
               fieldSize="sm"
+              leadingIcon="search"
               value={value.search}
               onChange={(e) => set('search', e.target.value)}
               placeholder={t('todos.searchPlaceholder')}
               aria-label={t('todos.searchPlaceholder')}
-              className="pl-9 pr-9"
+              className="pr-9"
             />
             {value.search && (
               <button
+                type="button"
                 onClick={() => set('search', '')}
                 aria-label={t('todos.clearFilters')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted transition-colors hover:text-text-secondary"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-pill p-0.5 text-text-muted transition-state hover:text-text-primary"
               >
-                <span className="material-symbols-outlined text-sm">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  close
+                </span>
               </button>
             )}
           </div>
 
-          {/* Priority */}
           <Select
             fieldSize="sm"
             aria-label={t('todos.priorities.all')}
@@ -119,7 +119,6 @@ export default function TodoFilters({ value, categories, onChange, onClear }: To
             <option value="low">{t('todos.priorities.low')}</option>
           </Select>
 
-          {/* Category */}
           <Select
             fieldSize="sm"
             aria-label={t('todos.form.category')}
@@ -135,7 +134,6 @@ export default function TodoFilters({ value, categories, onChange, onClear }: To
             ))}
           </Select>
 
-          {/* Status */}
           <Select
             fieldSize="sm"
             aria-label={t('todos.statuses.all')}
@@ -147,13 +145,6 @@ export default function TodoFilters({ value, categories, onChange, onClear }: To
             <option value="pending">{t('todos.statuses.pending')}</option>
             <option value="completed">{t('todos.statuses.completed')}</option>
           </Select>
-
-          {/* Clear */}
-          {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={onClear} className="text-danger">
-              {t('todos.clearFilters')}
-            </Button>
-          )}
         </div>
       )}
     </div>

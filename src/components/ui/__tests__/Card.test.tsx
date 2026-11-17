@@ -7,7 +7,7 @@ describe('Card', () => {
     render(<Card>Contenido</Card>)
     const card = screen.getByText('Contenido')
     expect(card.className).toContain('bg-bg-surface')
-    expect(card.className).toContain('rounded-[8px]')
+    expect(card.className).toContain('rounded-card')
     expect(card.className).toContain('p-4')
   })
 

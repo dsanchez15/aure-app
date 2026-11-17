@@ -21,11 +21,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   ref
 ) {
   const classes = [
-    'rounded-[8px] border border-border bg-bg-surface',
+    'rounded-card border border-border bg-bg-surface',
     paddingClasses[padding],
-    hoverable
-      ? 'transition-all hover:shadow-md hover:border-border-hover hover:-translate-y-px motion-reduce:hover:transform-none'
-      : '',
+    hoverable ? 'transition-surface hover:border-border-hover hover:shadow-md' : '',
     className,
   ]
     .filter(Boolean)

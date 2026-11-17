@@ -1,6 +1,7 @@
 'use client'
 
 import SettingCard from '@/components/SettingCard'
+import { SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 
 type ThemeMode = 'light' | 'dark' | 'system'
@@ -32,56 +33,59 @@ export default function ThemeAppearanceCard({
 }: ThemeAppearanceCardProps) {
   const { t } = useAppTranslation()
 
-  const selectedClasses = 'border-primary bg-primary/5'
-  const idleClasses = 'border-primary/10 hover:border-primary/30'
+  const optionClasses = (selected: boolean) =>
+    `flex items-center gap-3 rounded-control border p-4 text-left transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+      selected
+        ? 'border-primary bg-primary/5 text-text-primary'
+        : 'border-border text-text-secondary hover:border-border-hover hover:bg-bg-surface-hover'
+    }`
 
   return (
     <SettingCard>
-      <div className="mb-6 flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary">palette</span>
-        <h2 className="text-lg font-semibold">{t('settings.themeAppearance')}</h2>
-      </div>
-      <div className="space-y-6">
-        <div>
-          <label className="mb-3 block text-sm font-medium text-text-secondary">{t('settings.language')}</label>
-          <div className="grid grid-cols-2 gap-4">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => onLanguageChange(l.code)}
-                className={`flex items-center gap-3 rounded-[8px] border-2 p-4 transition-all ${
-                  selectedLang === l.code ? selectedClasses : idleClasses
-                }`}
-              >
-                <span className="text-2xl">{l.flag}</span>
-                <span className="text-sm font-medium">{l.label}</span>
-              </button>
-            ))}
-          </div>
+      <SectionHeader title={t('settings.themeAppearance')} icon="palette" />
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-2 font-label text-label-md text-text-secondary">{t('settings.language')}</legend>
+        <div className="grid grid-cols-2 gap-4">
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              onClick={() => onLanguageChange(l.code)}
+              aria-pressed={selectedLang === l.code}
+              className={optionClasses(selectedLang === l.code)}
+            >
+              <span aria-hidden="true" className="text-2xl">
+                {l.flag}
+              </span>
+              <span className="font-label text-label-lg">{l.label}</span>
+            </button>
+          ))}
         </div>
-        <div>
-          <label className="mb-3 block text-sm font-medium text-text-secondary">{t('settings.displayMode')}</label>
-          <div className="grid grid-cols-3 gap-4">
-            {THEME_MODES.map(({ mode, icon }) => (
-              <button
-                key={mode}
-                onClick={() => onThemeChange(mode)}
-                className={`flex flex-col items-center gap-2 rounded-[8px] border-2 p-4 transition-all ${
-                  theme === mode ? selectedClasses : idleClasses
-                }`}
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-2 font-label text-label-md text-text-secondary">{t('settings.displayMode')}</legend>
+        <div className="grid grid-cols-3 gap-4">
+          {THEME_MODES.map(({ mode, icon }) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onThemeChange(mode)}
+              aria-pressed={theme === mode}
+              className={`${optionClasses(theme === mode)} flex-col justify-center`}
+            >
+              <span
+                aria-hidden="true"
+                className={`material-symbols-outlined ${theme === mode ? 'text-primary' : 'text-text-muted'}`}
               >
-                <span
-                  className={`material-symbols-outlined ${theme === mode ? 'text-primary' : ''}`}
-                  style={theme !== mode ? { color: 'var(--color-text-muted)' } : undefined}
-                >
-                  {icon}
-                </span>
-                <span className="text-sm font-medium capitalize">{mode}</span>
-              </button>
-            ))}
-          </div>
+                {icon}
+              </span>
+              <span className="font-label text-label-md">{t(`settings.themeModes.${mode}`)}</span>
+            </button>
+          ))}
         </div>
-      </div>
+      </fieldset>
     </SettingCard>
   )
 }

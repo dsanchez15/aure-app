@@ -32,10 +32,15 @@ export default function ThemeLoader({ children }: { children: React.ReactNode })
           }
         }
 
-        // Always use classic (Aure) visual theme
-        localStorage.setItem('app-visual-theme', 'classic');
+        // Visual theme: localStorage (preview/QA) → user preference → classic (default during migration)
+        const storedVisual = localStorage.getItem('app-visual-theme');
+        const candidate = storedVisual ?? data.user?.visualTheme;
+        const visualTheme =
+          candidate === 'focus' || candidate === 'classic' ? candidate : 'classic';
+
+        localStorage.setItem('app-visual-theme', visualTheme);
         const root = document.documentElement;
-        root.setAttribute('data-visual-theme', 'classic');
+        root.setAttribute('data-visual-theme', visualTheme);
       } catch (error) {
         console.error('Failed to load theme:', error);
       }

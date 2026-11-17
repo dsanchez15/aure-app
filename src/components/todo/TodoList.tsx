@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Button, EmptyState, Spinner } from '@/components/ui'
+import { Badge, Button, EmptyState, Spinner } from '@/components/ui'
+import { PageHeader } from '@/components/layout'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useTodos } from '@/hooks/useTodos'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -79,7 +80,7 @@ export default function TodoList() {
 
   if (loading && todos.length === 0 && !groupedTodos) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-96 items-center justify-center">
         <Spinner size="lg" />
       </div>
     )
@@ -88,7 +89,7 @@ export default function TodoList() {
   if (error) {
     return (
       <div className="py-12 text-center">
-        <p className="text-danger">{error}</p>
+        <p className="font-body text-body-md text-danger">{error}</p>
         <Button
           className="mt-4"
           onClick={() =>
@@ -101,54 +102,68 @@ export default function TodoList() {
     )
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-text-primary">{t('todos.title')}</h2>
-      </div>
+  const subtitle = t('todos.subtitle', {
+    pending: metrics?.pending ?? 0,
+    completed: metrics?.completed ?? 0,
+    rate: metrics?.completionRate ?? 0,
+  })
 
-      <div className="flex gap-6">
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title={t('todos.title')}
+        description={subtitle}
+        actions={
+          <Button variant="secondary" onClick={() => inputRef.current?.focus()}>
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">
+              add
+            </span>
+            {t('todos.add')}
+          </Button>
+        }
+      />
+
+      <div className="flex flex-col gap-6 xl:flex-row">
         {/* Main content */}
-        <div className="min-w-0 flex-1 space-y-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
           <TodoCreateForm inputRef={inputRef} onAdd={createTodo} />
 
-          {/* API Error Banner */}
           {apiError && (
             <div
-              className="flex items-center gap-3 rounded-[8px] border p-4"
-              style={{
-                background: 'color-mix(in srgb, var(--color-danger) 8%, transparent)',
-                borderColor: 'color-mix(in srgb, var(--color-danger) 30%, transparent)',
-                color: 'var(--color-danger)',
-              }}
+              role="alert"
+              className="flex items-center gap-3 rounded-card border border-danger/30 bg-danger/10 p-4 text-danger"
             >
-              <span className="material-symbols-outlined">error</span>
-              <span className="flex-1 text-sm font-medium">{apiError}</span>
-              <button
+              <span aria-hidden="true" className="material-symbols-outlined">
+                error
+              </span>
+              <span className="flex-1 font-label text-label-md">{apiError}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-1.5 text-danger hover:bg-danger/10"
                 onClick={() => setApiError('')}
                 aria-label={t('common.cancel')}
-                className="todo-error-close rounded p-1"
               >
-                <span className="material-symbols-outlined text-sm">close</span>
-              </button>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  close
+                </span>
+              </Button>
             </div>
           )}
 
           <TodoFilters value={filters} categories={categories} onChange={setFilters} onClear={clearFilters} />
 
-          {/* Todo List */}
           {groupedTodos ? (
-            <div className="space-y-6">
+            <div className="flex flex-col gap-6">
               {Object.entries(groupedTodos).map(([groupName, groupTodos]) => (
-                <div key={groupName}>
-                  <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-text-secondary">
-                    <span className="h-2 w-2 rounded-full bg-primary" />
-                    {groupName}
-                    <span className="text-sm font-normal text-text-muted">({groupTodos.length})</span>
-                  </h3>
+                <section key={groupName} className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <span aria-hidden="true" className="h-2 w-2 rounded-pill bg-primary" />
+                    <h2 className="font-display text-title-md text-text-primary">{groupName}</h2>
+                    <Badge variant="neutral">{groupTodos.length}</Badge>
+                  </div>
                   <TodoItems todos={groupTodos} selectedId={selectedTodo?.id ?? null} {...itemHandlers} />
-                </div>
+                </section>
               ))}
             </div>
           ) : todos.length === 0 ? (
@@ -161,7 +176,6 @@ export default function TodoList() {
             <TodoItems todos={todos} selectedId={selectedTodo?.id ?? null} {...itemHandlers} />
           )}
 
-          {/* Edit Modal */}
           {editingTodo && (
             <TodoEditModal
               todo={editingTodo}
@@ -172,7 +186,6 @@ export default function TodoList() {
           )}
         </div>
 
-        {/* Sidebar */}
         <TodoDetailsSidebar todo={selectedTodo} metrics={metrics} />
       </div>
     </div>
