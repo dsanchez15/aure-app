@@ -1,6 +1,7 @@
 'use client';
 
 import AppLayout from '@/components/AppLayout';
+import { PageHeader } from '@/components/layout';
 import { useAppTranslation } from '@/components/LanguageProvider';
 import { useStudySession } from '@/hooks/useStudySession';
 import SessionConfigView from '@/components/study/review/SessionConfigView';
@@ -14,11 +15,8 @@ export default function ReviewPage() {
 
   return (
     <AppLayout>
-      <main className="flex-1 p-4 lg:p-8">
-        <header className="mb-6">
-          <h1 className="text-2xl font-bold">{t('study.review.title')}</h1>
-          <p className="text-sm text-text-muted">{t('study.review.subtitle')}</p>
-        </header>
+      <main className="flex flex-1 flex-col gap-6">
+        <PageHeader title={t('study.review.title')} description={t('study.review.subtitle')} />
 
         {studySession.showResumeDialog && (
           <ResumeSessionBanner

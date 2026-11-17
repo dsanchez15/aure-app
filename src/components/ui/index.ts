@@ -12,6 +12,8 @@ export {
 } from './Input'
 export { PasswordInput, type PasswordInputProps } from './PasswordInput'
 export { fieldControlBase, fieldSizeClasses } from './fieldStyles'
+export { ProgressRing, Sparkline, MiniBars } from './charts'
+export type { ProgressRingProps, SparklineProps, MiniBarsProps } from './charts'
 export { Field } from './Field'
 export { Select, type SelectProps } from './Select'
 export { Textarea, type TextareaProps } from './Textarea'

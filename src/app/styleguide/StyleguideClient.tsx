@@ -12,12 +12,15 @@ import {
   Input,
   MetaGrid,
   MetricCard,
+  MiniBars,
   Modal,
   PasswordInput,
+  ProgressRing,
   SectionHeader,
   SegmentedControl,
   Select,
   Skeleton,
+  Sparkline,
   Spinner,
   Textarea,
   Toggle,
@@ -86,7 +89,8 @@ const REGISTRY = [
   { name: 'Toggle · Modal · Badge · EmptyState · Spinner', wave: 'Ola 1', status: 'implementado' },
   { name: 'AppShell · Sidebar · SidebarItem · SidebarGroup · SidebarLogo · UserProfileMenu', wave: 'Ola 2', status: 'implementado' },
   { name: 'PageHeader · MobileTopbar · BottomNav · BrandMark', wave: 'Ola 2', status: 'implementado' },
-  { name: 'Login · Panel · Tareas · Recordatorios · Ajustes', wave: 'Ola 3', status: 'en curso' },
+  { name: 'Login · Panel · Tareas · Recordatorios · Ajustes', wave: 'Ola 3', status: 'implementado' },
+  { name: 'ProgressRing · Sparkline · MiniBars (ui/charts, SVG propio)', wave: 'Ola 4', status: 'implementado' },
   { name: 'ListPage · DetailPage · FormPage · AuthShell', wave: 'Ola 4', status: 'pendiente' },
 ] as const;
 
@@ -252,6 +256,28 @@ export default function StyleguideClient() {
               <MetricCard label="Completadas" value={16} tone="success" />
               <MetricCard label="Vencidas" value={1} tone="danger" />
               <MetricCard label="Cumplimiento" value="32%" tone="primary" />
+            </div>
+          </Card>
+
+          <Card padding="lg" className="flex flex-col gap-5">
+            <SectionHeader
+              title="Gráficas"
+              icon="show_chart"
+              description="SVG propio (ADR-007), sin librería"
+            />
+            <div className="flex flex-wrap items-end gap-8">
+              <div className="flex items-center gap-4">
+                <ProgressRing progress={72} size={64} label="72% de cumplimiento semanal" />
+                <ProgressRing progress={40} size={48} tone="success" label="40% de avance" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Sparkline values={[2, 4, 3, 6, 5, 8, 7]} label="Tendencia de tareas completadas" />
+                <span className="font-mono text-label-sm text-text-muted">Últimos 7 días</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <MiniBars values={[3, 5, 2, 6, 4, 7, 5]} label="Hábitos por día" tone="info" />
+                <span className="font-mono text-label-sm text-text-muted">Hábitos por día</span>
+              </div>
             </div>
           </Card>
 

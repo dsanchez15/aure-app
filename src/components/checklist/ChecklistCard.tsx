@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge, Button } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { getProgress, getStatus } from './helpers'
 import type { Checklist } from '@/types/checklist'
@@ -41,114 +42,141 @@ export default function ChecklistCard({
   }
   const metrics = checklistWithMetrics.metrics
 
+  const stop =
+    (action: () => void) =>
+    (event: React.MouseEvent) => {
+      event.stopPropagation()
+      action()
+    }
+
   return (
     <div
-      className={`checklist-card rounded-[8px] border transition-all ${
-        isExpanded ? 'checklist-card-expanded border-primary/40 shadow-sm' : 'checklist-card-hover'
+      className={`overflow-hidden rounded-card border bg-bg-surface transition-surface ${
+        isExpanded ? 'border-primary/40 shadow-sm' : 'border-border hover:border-border-hover'
       }`}
-      style={{
-        background: 'var(--color-bg-surface)',
-        borderColor: isExpanded ? undefined : 'var(--color-border)',
-      }}
     >
-      <div className="group cursor-pointer p-4" onClick={() => onToggleExpand(c.id)}>
-        <div className="flex items-start justify-between">
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        onClick={() => onToggleExpand(c.id)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            onToggleExpand(c.id)
+          }
+        }}
+        className="group cursor-pointer p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <div className="mb-1 flex items-center gap-2">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
               <span
-                className="material-symbols-outlined text-sm text-text-muted transition-transform"
-                style={{ transform: isExpanded ? 'rotate(90deg)' : '' }}
+                aria-hidden="true"
+                className={`material-symbols-outlined text-lg text-text-muted transition-transform ${
+                  isExpanded ? 'rotate-90' : ''
+                }`}
               >
                 chevron_right
               </span>
               {c.category && (
-                <span className="material-symbols-outlined text-sm" style={{ color: c.category.color }}>
+                <span
+                  aria-hidden="true"
+                  className="material-symbols-outlined text-lg"
+                  style={{ color: c.category.color }}
+                >
                   {c.category.icon}
                 </span>
               )}
-              <h3 className="truncate font-semibold text-text-primary">{c.title}</h3>
-              {isTemplate && c.version && (
-                <span className="badge-version rounded-full bg-bg-surface-hover px-2 py-0.5 text-xs font-medium text-text-secondary">
-                  v{c.version}
-                </span>
-              )}
-              <span className="checklist-status-badge rounded-full px-2 py-0.5 text-xs font-medium" style={status.style}>
-                {status.label}
-              </span>
+              <h3 className="truncate font-display text-title-md text-text-primary">{c.title}</h3>
+              {isTemplate && c.version && <Badge variant="neutral">v{c.version}</Badge>}
+              <Badge variant={status.variant}>{status.label}</Badge>
             </div>
-            {c.description && <p className="ml-6 truncate text-sm text-text-muted">{c.description}</p>}
+            {c.description && (
+              <p className="ml-7 truncate font-body text-body-md text-text-muted">{c.description}</p>
+            )}
           </div>
 
-          <div className="ml-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="ml-2 flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
             {isTemplate && onInstantiateTemplate && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onInstantiateTemplate(c)
-                }}
-                title="Create instance"
-                className="checklist-action-btn checklist-action-btn-green rounded-lg p-1.5 text-text-muted transition-colors"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-1.5 text-text-secondary hover:text-success"
+                title={t('checklists.instantiate')}
+                aria-label={t('checklists.instantiate')}
+                onClick={stop(() => onInstantiateTemplate(c))}
               >
-                <span className="material-symbols-outlined text-sm">play_arrow</span>
-              </button>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  play_arrow
+                </span>
+              </Button>
             )}
             {!isHistory && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEdit(c)
-                }}
-                title="Edit"
-                className="checklist-action-btn rounded-lg p-1.5 text-text-muted transition-colors hover:bg-primary/10 hover:text-primary"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-1.5 text-text-secondary hover:text-primary"
+                title={t('common.edit')}
+                aria-label={t('common.edit')}
+                onClick={stop(() => onEdit(c))}
               >
-                <span className="material-symbols-outlined text-lg">edit</span>
-              </button>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  edit
+                </span>
+              </Button>
             )}
             {!isTemplate && !isHistory && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDuplicate(c.id)
-                }}
-                title="Duplicate"
-                className="checklist-action-btn checklist-action-btn-copy rounded-lg p-1.5 text-text-muted transition-colors hover:text-primary"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-1.5 text-text-secondary hover:text-primary"
+                title={t('checklists.duplicate')}
+                aria-label={t('checklists.duplicate')}
+                onClick={stop(() => onDuplicate(c.id))}
               >
-                <span className="material-symbols-outlined text-sm">content_copy</span>
-              </button>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  content_copy
+                </span>
+              </Button>
             )}
             {!isTemplate && !isHistory && onArchive && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onArchive(c.id)
-                }}
-                title="Archive"
-                className="checklist-action-btn checklist-action-btn-amber rounded-lg p-1.5 text-text-muted transition-colors"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-1.5 text-text-secondary hover:text-warning"
+                title={t('checklists.card.archive')}
+                aria-label={t('checklists.card.archive')}
+                onClick={stop(() => onArchive(c.id))}
               >
-                <span className="material-symbols-outlined text-sm">archive</span>
-              </button>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  archive
+                </span>
+              </Button>
             )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onDelete(c.id)
-              }}
-              title="Delete"
-              className="checklist-action-btn checklist-action-btn-danger rounded-lg p-1.5 text-text-muted transition-colors"
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-1.5 text-text-secondary hover:bg-danger/10 hover:text-danger"
+              title={t('common.delete')}
+              aria-label={t('common.delete')}
+              onClick={stop(() => onDelete(c.id))}
             >
-              <span className="material-symbols-outlined text-sm">delete</span>
-            </button>
+              <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                delete
+              </span>
+            </Button>
           </div>
         </div>
 
-        <div className="ml-6 mt-3 flex items-center gap-3">
-          <div className="checklist-progress-track h-2 flex-1 overflow-hidden rounded-full bg-bg-surface-hover">
+        <div className="ml-7 mt-3 flex items-center gap-3">
+          <div className="h-2 flex-1 overflow-hidden rounded-pill bg-bg-surface-hover">
             <div
-              className="checklist-progress-fill h-full rounded-full transition-all"
+              className="h-full rounded-pill"
               style={{ width: `${progress}%`, backgroundColor: c.color }}
             />
           </div>
-          <span className="w-16 text-right text-xs font-medium text-text-muted">
+          <span className="shrink-0 font-mono text-label-sm tabular-nums text-text-muted">
             {t('checklists.itemsCount', {
               completed: itemsList.filter((i) => i.completed).length,
               total: itemsList.length,
@@ -157,9 +185,8 @@ export default function ChecklistCard({
           </span>
         </div>
 
-        {/* History metrics */}
         {isHistory && metrics && (
-          <div className="ml-6 mt-2 flex gap-3 text-xs text-text-muted">
+          <div className="ml-7 mt-2 flex flex-wrap gap-3 font-label text-label-sm text-text-muted">
             <span>{t('checklists.historyMetrics.items', { count: metrics.totalItems })}</span>
             <span>{t('checklists.historyMetrics.completed', { count: metrics.completedItems })}</span>
             <span>{t('checklists.historyMetrics.completion', { count: metrics.completionPercentage })}</span>

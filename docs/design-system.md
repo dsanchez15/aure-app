@@ -108,6 +108,7 @@ Todas se exportan desde `@/components/ui` y se muestran viven en `/styleguide`.
 | Field (`FieldWrapper` como alias), Hint, Required | 1 | implementado |
 | Checkbox, SegmentedControl, Drawer, MetaGrid, SectionHeader, MetricCard, Skeleton | 1 | implementado |
 | PasswordInput | 3 | implementado |
+| ProgressRing, Sparkline, MiniBars (`ui/charts`) | 4 | implementado |
 
 #### API canónica
 
@@ -129,6 +130,9 @@ Todas se exportan desde `@/components/ui` y se muestran viven en `/styleguide`.
 | `MetaGrid` | `items[{label,value}]` · `columns: 1 \| 2` |
 | `Skeleton` | `lines` · `className` |
 | `EmptyState` | `icon` · `title` · `description` · `action` |
+| `ProgressRing` | `progress` (0–100) · `size` (48/64) · `strokeWidth` · `tone` · `label` (obligatorio) · `showLabel` |
+| `Sparkline` | `values` · `width` (64) · `height` (20) · `tone` · `label` |
+| `MiniBars` | `values` · `max` · `barWidth` (8) · `gap` (4) · `height` (32) · `tone` · `label` |
 
 Reglas de composición:
 - `MetricCard` ya incluye `Card`: no envolver en otra tarjeta.
@@ -177,7 +181,7 @@ Los módulos antiguos (`components/AppLayout.tsx`, `components/Sidebar*.tsx`, `c
 
 ### Gráficas (`ui/charts`, Ola 4)
 
-ADR-007: **SVG propio, sin librería**. `src/components/ProgressRing.tsx` es la referencia; en Ola 4 se promueve a `ui/charts` junto con `Sparkline` y `MiniBars` (barras verticales simples).
+ADR-007: **SVG propio, sin librería**. Implementado en `src/components/ui/charts/` (`ProgressRing`, `Sparkline`, `MiniBars`); `src/components/ProgressRing.tsx` queda como shim de compatibilidad.
 
 | Regla | Detalle |
 |---|---|

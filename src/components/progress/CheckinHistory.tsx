@@ -1,6 +1,6 @@
 'use client'
 
-import { Badge, Card } from '@/components/ui'
+import { Badge, Card, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { fatigueLabel, fatigueBadgeVariant } from './fatigue'
 import type { WeeklyCheckIn } from '@/types/goal'
@@ -13,17 +13,17 @@ export default function CheckinHistory({ checkins }: CheckinHistoryProps) {
   const { t, language: lang } = useAppTranslation()
 
   return (
-    <Card padding="lg" className="dashboard-card">
-      <h3 className="mb-4 font-semibold text-text-primary">{t('progress.history')}</h3>
+    <Card padding="lg" className="flex flex-col gap-4">
+      <SectionHeader title={t('progress.history')} icon="history" />
 
       {checkins.length === 0 ? (
-        <p className="py-4 text-center text-sm text-text-muted">{t('progress.noCheckins')}</p>
+        <p className="py-4 text-center font-body text-body-md text-text-muted">{t('progress.noCheckins')}</p>
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-3">
           {checkins.slice(0, 8).map((checkin) => (
-            <div key={checkin.id} className="rounded-[8px] border border-border p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs text-text-muted">
+            <div key={checkin.id} className="rounded-control border border-border p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="font-mono text-label-sm uppercase text-text-muted">
                   {t('progress.weekOf')}{' '}
                   {new Date(checkin.weekStartDate).toLocaleDateString(lang === 'es' ? 'es' : 'en')}
                 </span>
@@ -32,13 +32,15 @@ export default function CheckinHistory({ checkins }: CheckinHistoryProps) {
                 </Badge>
               </div>
               {checkin.deviations && (
-                <p className="mb-1 text-xs text-text-secondary">
-                  <span className="font-medium">{t('progress.deviations')}:</span> {checkin.deviations}
+                <p className="font-body text-body-md text-text-secondary">
+                  <span className="font-label text-text-primary">{t('progress.deviations')}:</span>{' '}
+                  {checkin.deviations}
                 </p>
               )}
               {checkin.adjustmentNotes && (
-                <p className="text-xs text-text-secondary">
-                  <span className="font-medium">{t('progress.adjustments')}:</span> {checkin.adjustmentNotes}
+                <p className="font-body text-body-md text-text-secondary">
+                  <span className="font-label text-text-primary">{t('progress.adjustments')}:</span>{' '}
+                  {checkin.adjustmentNotes}
                 </p>
               )}
             </div>

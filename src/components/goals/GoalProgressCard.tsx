@@ -1,7 +1,7 @@
 'use client'
 
-import { Card } from '@/components/ui'
-import ProgressRing from '@/components/ProgressRing'
+import { Card, MetaGrid, SectionHeader } from '@/components/ui'
+import { ProgressRing } from '@/components/ui/charts'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { Goal } from '@/types/goal'
 
@@ -18,10 +18,10 @@ export default function GoalProgressCard({ goal }: GoalProgressCardProps) {
       : null
 
   const rows: { label: string; value: string }[] = [
-    { label: t('goals.progress.timeInvested'), value: `${goal.totalHoursSpent.toFixed(1)}h` },
+    { label: t('goals.progress.timeInvested'), value: `${goal.totalHoursSpent.toFixed(1)} h` },
   ]
   if (goal.estimatedHours) {
-    rows.push({ label: t('goals.progress.estimated'), value: `${goal.estimatedHours}h` })
+    rows.push({ label: t('goals.progress.estimated'), value: `${goal.estimatedHours} h` })
   }
   if (goal.deadline) {
     rows.push({
@@ -34,18 +34,18 @@ export default function GoalProgressCard({ goal }: GoalProgressCardProps) {
   }
 
   return (
-    <Card padding="lg" className="dashboard-card">
-      <h3 className="mb-4 font-semibold text-text-primary">{t('goals.progress.title')}</h3>
+    <Card padding="lg" className="flex flex-col gap-4">
+      <SectionHeader title={t('goals.progress.title')} icon="donut_large" />
       <div className="flex items-center gap-6">
-        {progress !== null && <ProgressRing progress={progress} size={80} strokeWidth={8} />}
-        <div className="flex-1 space-y-2">
-          {rows.map((row) => (
-            <div key={row.label} className="flex justify-between text-sm">
-              <span className="text-text-muted">{row.label}</span>
-              <span className="text-text-primary">{row.value}</span>
-            </div>
-          ))}
-        </div>
+        {progress !== null && (
+          <ProgressRing
+            progress={progress}
+            size={80}
+            strokeWidth={8}
+            label={`${Math.round(progress)}% ${t('goals.progress.timeInvested')}`}
+          />
+        )}
+        <MetaGrid items={rows} columns={1} className="flex-1" />
       </div>
     </Card>
   )

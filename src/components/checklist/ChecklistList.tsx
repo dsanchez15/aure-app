@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Button, EmptyState, Input, Select } from '@/components/ui'
+import { Button, EmptyState, Input, SegmentedControl, Select } from '@/components/ui'
+import { PageHeader } from '@/components/layout'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import ChecklistCard from './ChecklistCard'
 import ExpandedItems from './ExpandedItems'
@@ -153,73 +154,51 @@ export default function ChecklistList({
         : t('checklists.createHint')
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-text-primary">{t('checklists.title')}</h2>
-          <p className="mt-1 text-text-muted">{t('checklists.checklistCount', { count: checklists.length })}</p>
-        </div>
-        <Button onClick={onNew}>
-          <span className="material-symbols-outlined text-sm">add</span>
-          {t('checklists.newChecklist')}
-        </Button>
-      </div>
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        title={t('checklists.title')}
+        description={t('checklists.checklistCount', { count: checklists.length })}
+        actions={
+          <Button onClick={onNew}>
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">
+              add
+            </span>
+            {t('checklists.newChecklist')}
+          </Button>
+        }
+      />
 
-      {/* Tabs */}
-      <div className="checklist-tabs flex gap-1 border-b border-border pb-1">
-        {tabLabels.map((tabItem) => (
-          <button
-            key={tabItem.value}
-            onClick={() => onTabChange(tabItem.value)}
-            data-active={tab === tabItem.value}
-            className={`rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
-              tab === tabItem.value
-                ? 'border-b-2 border-primary bg-primary/5 text-primary'
-                : 'checklist-tab-inactive text-text-muted'
-            }`}
-          >
-            {tabItem.label}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<ChecklistTab>
+        ariaLabel={t('checklists.title')}
+        options={tabLabels}
+        value={tab}
+        onChange={onTabChange}
+      />
 
-      {/* Search */}
-      <div className="relative">
-        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">
-          search
-        </span>
-        <Input
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={t('checklists.searchPlaceholder')}
-          aria-label={t('checklists.searchPlaceholder')}
-          className="pl-10"
-        />
-      </div>
+      <Input
+        leadingIcon="search"
+        value={search}
+        onChange={(e) => onSearchChange(e.target.value)}
+        placeholder={t('checklists.searchPlaceholder')}
+        aria-label={t('checklists.searchPlaceholder')}
+      />
 
-      {/* Filters + Sort */}
       {tab === 'active' && (
         <div className="flex flex-wrap items-center gap-2">
-          {filterOptions.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => onFilterChange(f.value)}
-              className={`checklist-filter-btn rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                filter === f.value
-                  ? 'checklist-filter-btn-active bg-primary text-white'
-                  : 'checklist-filter-btn-inactive bg-bg-surface-hover text-text-secondary'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+          <SegmentedControl<ChecklistFilter>
+            ariaLabel={t('common.filter')}
+            size="sm"
+            options={filterOptions}
+            value={filter}
+            onChange={onFilterChange}
+          />
           {categories.length > 0 && (
             <Select
               fieldSize="sm"
               value={categoryFilter ?? ''}
               onChange={(e) => onCategoryFilterChange(e.target.value ? parseInt(e.target.value) : null)}
               aria-label={t('common.all')}
-              className="w-auto border-0 bg-bg-surface-hover text-text-secondary"
+              className="w-auto"
             >
               <option value="">{t('common.all')}</option>
               {categories.map((cat) => (
@@ -230,13 +209,15 @@ export default function ChecklistList({
             </Select>
           )}
           <div className="ml-auto flex items-center gap-1">
-            <span className="material-symbols-outlined text-xs text-text-muted">sort</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-lg text-text-muted">
+              sort
+            </span>
             <Select
               fieldSize="sm"
               value={sort}
               onChange={(e) => onSortChange(e.target.value as SortOption)}
               aria-label={t('checklists.sort.newest')}
-              className="w-auto border-0 bg-bg-surface-hover text-text-secondary"
+              className="w-auto"
             >
               {sortOptions.map((s) => (
                 <option key={s.value} value={s.value}>

@@ -8,6 +8,9 @@ import { PasswordInput } from '@/components/ui/PasswordInput'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { MiniBars } from '@/components/ui/charts/MiniBars'
+import { ProgressRing } from '@/components/ui/charts/ProgressRing'
+import { Sparkline } from '@/components/ui/charts/Sparkline'
 
 describe('Checkbox', () => {
   it('renders a native checkbox associated with its label', () => {
@@ -36,6 +39,21 @@ describe('PasswordInput', () => {
     fireEvent.click(toggle)
     expect(input).toHaveAttribute('type', 'text')
     expect(screen.getByRole('button', { name: 'Ocultar contraseña' })).toHaveAttribute('aria-pressed', 'true')
+  })
+})
+
+describe('Gráficas SVG', () => {
+  it('expone un resumen accesible y oculta el texto decorativo', () => {
+    render(
+      <div>
+        <ProgressRing progress={72} label="72% de cumplimiento semanal" />
+        <Sparkline values={[1, 3, 2]} label="Tendencia de tareas" />
+        <MiniBars values={[2, 5, 3]} label="Hábitos por día" />
+      </div>
+    )
+    expect(screen.getByRole('img', { name: '72% de cumplimiento semanal' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Tendencia de tareas' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Hábitos por día' })).toBeInTheDocument()
   })
 })
 

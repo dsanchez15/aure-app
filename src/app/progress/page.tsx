@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import AppLayout from '@/components/AppLayout'
 import WeekCalendar from '@/components/WeekCalendar'
+import { PageHeader } from '@/components/layout'
 import { Button, Card, Modal } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useProgressData } from '@/hooks/useProgressData'
@@ -31,21 +32,20 @@ export default function ProgressPage() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <header className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary">{t('progress.title')}</h1>
-            <p className="mt-1 text-text-secondary">{t('progress.subtitle')}</p>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setEntryType('activity')}>{t('progress.activityLog')}</Button>
-            <Button variant="secondary" onClick={() => setEntryType('checkin')} className="border border-border">
-              {t('progress.weeklyCheckIn')}
-            </Button>
-          </div>
-        </header>
+      <div className="flex flex-col gap-6">
+        <PageHeader
+          title={t('progress.title')}
+          description={t('progress.subtitle')}
+          actions={
+            <>
+              <Button onClick={() => setEntryType('activity')}>{t('progress.activityLog')}</Button>
+              <Button variant="secondary" onClick={() => setEntryType('checkin')}>
+                {t('progress.weeklyCheckIn')}
+              </Button>
+            </>
+          }
+        />
 
-        {/* Entry Modal */}
         {entryType && (
           <Modal
             isOpen={true}
@@ -53,7 +53,13 @@ export default function ProgressPage() {
             title={entryType === 'activity' ? t('progress.activityLog') : t('progress.weeklyCheckIn')}
           >
             {entryType === 'activity' ? (
-              <ActivityForm goals={goals} phases={phases} saving={saving} setSaving={setSaving} onSaved={handleSaved} />
+              <ActivityForm
+                goals={goals}
+                phases={phases}
+                saving={saving}
+                setSaving={setSaving}
+                onSaved={handleSaved}
+              />
             ) : (
               <CheckinForm saving={saving} setSaving={setSaving} onSaved={handleSaved} />
             )}
@@ -61,24 +67,26 @@ export default function ProgressPage() {
         )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Calendar - 2/3 */}
           <div className="lg:col-span-2">
-            <Card padding="lg" className="dashboard-card">
-              <div className="mb-4 flex items-center justify-between">
-                <button onClick={prevWeek} aria-label="Previous week" className="rounded-[8px] p-2 text-text-muted hover:bg-primary/10">
-                  ←
-                </button>
-                <span className="font-medium text-text-primary">{weekLabel}</span>
-                <button onClick={nextWeek} aria-label="Next week" className="rounded-[8px] p-2 text-text-muted hover:bg-primary/10">
-                  →
-                </button>
+            <Card padding="lg" className="flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-3">
+                <Button variant="ghost" size="sm" onClick={prevWeek} aria-label={t('progress.prevWeek')}>
+                  <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                    chevron_left
+                  </span>
+                </Button>
+                <span className="font-label text-label-lg text-text-primary">{weekLabel}</span>
+                <Button variant="ghost" size="sm" onClick={nextWeek} aria-label={t('progress.nextWeek')}>
+                  <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                    chevron_right
+                  </span>
+                </Button>
               </div>
               <WeekCalendar entries={entries} weekStart={currentWeek} />
               <ActivityList entries={entries} goals={goals} />
             </Card>
           </div>
 
-          {/* Weekly check-in history - 1/3 */}
           <div>
             <CheckinHistory checkins={checkins} />
           </div>
