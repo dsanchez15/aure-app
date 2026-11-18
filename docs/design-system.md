@@ -154,7 +154,7 @@ Reglas de composición:
 
 ### Patrón: barra de filtros (Ola 5)
 
-Referencia implementada en `components/todo/TodoFilters.tsx`; es la plantilla para Recordatorios, Checklists e Hitos.
+Referencia implementada en `components/patterns/FilterBar.tsx`; aplicada en Tareas, Recordatorios y Checklists.
 
 **Barra (panel cerrado)**
 - Izquierda: `Button` secundario **Filtros** + `Badge` con los filtros activos (solo los que difieren del default) + **Limpiar filtros**.
@@ -169,7 +169,7 @@ Referencia implementada en `components/todo/TodoFilters.tsx`; es la plantilla pa
 - Selects nativos (categoría) dentro de un chip `h-7` con borde, superficie y foco tokenizados.
 
 **Persistencia**
-- Tareas guarda los filtros en `sessionStorage` (`aure-todo-filters`); sobreviven a refresh dentro de la sesión y vuelven al default en una pestaña nueva.
+- `useSessionState` (`src/hooks/useSessionState.ts`) guarda los filtros en `sessionStorage`; sobreviven a refresh dentro de la sesión y vuelven al default en una pestaña nueva. Claves: `aure-todo-filters`, `aure-reminder-filter`, `aure-checklist-filters`.
 
 ### Layout (`layout/`)
 
@@ -197,9 +197,11 @@ Los módulos antiguos (`components/AppLayout.tsx`, `components/Sidebar*.tsx`, `c
 
 | Componente | Ola | Estado |
 |---|---|---|
+| FilterBar (barra + chips + resumen), FilterField, FilterSelect | 5 | implementado |
 | InlineCreateBar, Toolbar, ListRow | 2–3 | falta |
-| FilterBar (dos niveles, chips activos, resumen vivo) | 5 | referencia en Tareas; pendiente de extraer a `patterns/` |
 | ListPage, DetailPage, FormPage, SettingsPage, AuthShell | 3 | falta |
+
+`FilterBar` es la cabecera de filtros de una lista: botón `Filtros`, chips de filtros activos (solo los que difieren del default), `Limpiar filtros` y resumen vivo (`aria-live`). El panel se compone con `FilterField` + `SegmentedControl size="xs"` + `FilterSelect`, y el estado de apertura vive en la página para que no se cierre al aplicar filtros. Persistencia con `useSessionState` (`src/hooks/useSessionState.ts`). Aplicado en Tareas, Recordatorios y Checklists.
 
 ### Gráficas (`ui/charts`, Ola 4)
 

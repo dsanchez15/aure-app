@@ -24,6 +24,9 @@ export const translations = {
       none: 'None',
       underConstruction: 'Section under construction',
       comingSoon: 'Coming soon',
+      clearFilters: 'Clear filters',
+      sortBy: 'Sort by',
+      category: 'Category',
     },
     goals: {
       title: 'Goals',
@@ -606,6 +609,7 @@ export const translations = {
       title: 'Reminders',
       subtitle: '{{pending}} pending · {{completed}} completed',
       newReminder: 'New Reminder',
+      statusLabel: 'Status',
       filters: {
         pending: 'Pending',
         all: 'All',
@@ -964,6 +968,9 @@ const es: Translations = {
     none: 'Ninguno',
     underConstruction: 'Sección en construcción',
     comingSoon: 'Próximamente',
+    clearFilters: 'Limpiar filtros',
+    sortBy: 'Ordenar por',
+    category: 'Categoría',
   },
   goals: {
     title: 'Objetivos',
@@ -1546,6 +1553,7 @@ const es: Translations = {
     title: 'Recordatorios',
     subtitle: '{{pending}} pendientes · {{completed}} completados',
     newReminder: 'Nuevo recordatorio',
+    statusLabel: 'Estado',
     filters: {
       pending: 'Pendientes',
       all: 'Todos',

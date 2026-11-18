@@ -92,6 +92,7 @@ const REGISTRY = [
   { name: 'ProgressRing · Sparkline · MiniBars (ui/charts, SVG propio)', wave: 'Ola 4', status: 'implementado' },
   { name: 'Cierre Focus: tokens en todo src/, tema único y guard no-raw-values', wave: 'Ola 5', status: 'implementado' },
   { name: 'FilterBar de listas: dos niveles, chips activos y resumen (Tareas)', wave: 'Ola 5', status: 'implementado' },
+  { name: 'patterns/: FilterBar · FilterField · FilterSelect + useSessionState', wave: 'Ola 5', status: 'implementado' },
   { name: 'ListPage · DetailPage · FormPage · AuthShell', wave: 'Ola 4', status: 'pendiente' },
 ] as const;
 

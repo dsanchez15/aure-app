@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import AppLayout from '@/components/AppLayout'
 import { PageHeader } from '@/components/layout'
+import { FilterBar, FilterField } from '@/components/patterns'
 import { Button, EmptyState, SegmentedControl, Spinner } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useReminders, type ReminderFilter } from '@/hooks/useReminders'
@@ -27,6 +28,7 @@ export default function RemindersPage() {
   } = useReminders()
 
   const [showForm, setShowForm] = useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const [editing, setEditing] = useState<Reminder | null>(null)
 
   const openNew = () => {
@@ -60,7 +62,6 @@ export default function RemindersPage() {
       <div className="flex flex-col gap-5">
         <PageHeader
           title={t('reminders.title')}
-          description={t('reminders.subtitle', { pending: pendingCount, completed: completedCount })}
           actions={
             <Button onClick={openNew}>
               <span aria-hidden="true" className="material-symbols-outlined text-lg">
@@ -71,12 +72,29 @@ export default function RemindersPage() {
           }
         />
 
-        <SegmentedControl<ReminderFilter>
-          ariaLabel={t('reminders.title')}
-          options={FILTER_TABS.map((f) => ({ value: f, label: t(`reminders.filters.${f}`) }))}
-          value={filter}
-          onChange={setFilter}
-        />
+        <FilterBar
+          isOpen={filtersOpen}
+          onToggle={() => setFiltersOpen((open) => !open)}
+          onClear={() => setFilter('pending')}
+          active={filter === 'pending' ? [] : [t(`reminders.filters.${filter}`)]}
+          summary={t('reminders.subtitle', { pending: pendingCount, completed: completedCount })}
+        >
+          <div className="flex flex-wrap items-end gap-2">
+            <FilterField label={t('reminders.statusLabel')} className="min-w-56 flex-1">
+              <SegmentedControl<ReminderFilter>
+                ariaLabel={t('reminders.statusLabel')}
+                size="xs"
+                fullWidth
+                options={FILTER_TABS.map((f) => ({
+                  value: f,
+                  label: t(`reminders.filters.${f}`),
+                }))}
+                value={filter}
+                onChange={setFilter}
+              />
+            </FilterField>
+          </div>
+        </FilterBar>
 
         {filtered.length === 0 ? (
           <EmptyState icon="notifications_active" title={t('reminders.noReminders')} />

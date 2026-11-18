@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useTodos } from '@/hooks/useTodos'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useSessionState } from '@/hooks/useSessionState'
 import TodoCreateForm from './TodoCreateForm'
 import TodoFilters, { type TodoFiltersValue, type TodoSort } from './TodoFilters'
 import TodoItems from './TodoItems'
@@ -25,18 +26,6 @@ const INITIAL_FILTERS: TodoFiltersValue = {
   status: '',
 }
 
-function readStoredFilters(): TodoFiltersValue | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<TodoFiltersValue>
-    return { ...INITIAL_FILTERS, ...parsed }
-  } catch {
-    return null
-  }
-}
-
 function sortByCreatedAt(todos: Todo[], sort: TodoSort): Todo[] {
   return [...todos].sort((a, b) => {
     const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -46,9 +35,8 @@ function sortByCreatedAt(todos: Todo[], sort: TodoSort): Todo[] {
 
 export default function TodoList() {
   const { t } = useAppTranslation()
-  const [filters, setFilters] = useState<TodoFiltersValue>(INITIAL_FILTERS)
+  const [filters, setFilters] = useSessionState<TodoFiltersValue>(STORAGE_KEY, INITIAL_FILTERS)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [loaded, setLoaded] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -77,17 +65,8 @@ export default function TodoList() {
     fetchTodos({ viewMode, groupBy, search: debouncedSearch, priority, category, status })
   }, [fetchTodos, viewMode, groupBy, debouncedSearch, priority, category, status])
 
-  // Los filtros sobreviven a un refresh durante la sesión del navegador.
-  useEffect(() => {
-    const stored = readStoredFilters()
-    if (stored) setFilters(stored)
-    setLoaded(true)
-  }, [])
-
-  useEffect(() => {
-    if (!loaded) return
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters))
-  }, [filters, loaded])
+  // Los filtros sobreviven a un refresh durante la sesión del navegador
+  // (useSessionState); el panel de filtros permanece abierto mientras se aplican.
 
   // Keyboard shortcut: "n" to focus the new-todo input
   useEffect(() => {
