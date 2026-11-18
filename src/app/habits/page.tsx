@@ -5,6 +5,8 @@ import AppLayout from '@/components/AppLayout';
 import PlanningView from '@/components/PlanningView';
 import ActionView from '@/components/ActionView';
 import ArchiveView from '@/components/ArchiveView';
+import { PageHeader } from '@/components/layout';
+import { Button, Card, SegmentedControl } from '@/components/ui';
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { Habit, Category, Objective, HabitFormData, HabitState } from '@/types/habit';
 
@@ -115,45 +117,31 @@ export default function HabitsPage() {
         }
     };
 
-    const tabs: { id: ViewTab; label: string; icon: string }[] = [
-        { id: 'action', label: t('habits.tabs.action'), icon: 'bolt' },
-        { id: 'planning', label: t('habits.tabs.planning'), icon: 'edit_calendar' },
-        { id: 'archive', label: t('habits.tabs.archive'), icon: 'archive' },
+    const tabs: { id: ViewTab; label: string }[] = [
+        { id: 'action', label: t('habits.tabs.action') },
+        { id: 'planning', label: t('habits.tabs.planning') },
+        { id: 'archive', label: t('habits.tabs.archive') },
     ];
 
     return (
         <AppLayout>
-            <div className="max-w-4xl mx-auto">
-                <div className="rounded-[8px] p-6" style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-                    {/* Tabs */}
-                    <div className="habits-tabs flex gap-1 mb-6 p-1 rounded-[8px]" style={{ background: 'var(--color-bg-input)' }}>
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                data-active={activeTab === tab.id}
-                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-[8px] text-sm font-medium transition-all`}
-                                style={
-                                    activeTab === tab.id
-                                        ? { background: 'var(--color-bg-surface)', color: 'var(--color-primary)', boxShadow: 'var(--shadow-sm)' }
-                                        : { color: 'var(--color-text-secondary)' }
-                                }
-                            >
-                                <span className="material-symbols-outlined text-lg">{tab.icon}</span>
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+            <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+                <PageHeader title={t('habits.title')} description={t('habits.myHabits')} />
+
+                <Card padding="lg" className="flex flex-col gap-5">
+                    <SegmentedControl<ViewTab>
+                        ariaLabel={t('habits.title')}
+                        options={tabs.map((tab) => ({ value: tab.id, label: tab.label }))}
+                        value={activeTab}
+                        onChange={setActiveTab}
+                    />
 
                     {error && (
-                        <div className="text-center py-4 mb-4">
-                                <p className="text-red-500">{error}</p>
-                            <button
-                                onClick={fetchHabits}
-                                className="mt-2 px-4 py-2 btn-neon bg-primary text-white rounded-[8px] hover:bg-primary/90"
-                            >
+                        <div role="alert" className="flex flex-wrap items-center gap-3 rounded-card border border-danger/30 bg-danger/10 p-4">
+                            <p className="flex-1 font-label text-label-md text-danger">{error}</p>
+                            <Button size="sm" variant="secondary" onClick={fetchHabits}>
                                 {t('habits.retry')}
-                            </button>
+                            </Button>
                         </div>
                     )}
 
@@ -184,7 +172,7 @@ export default function HabitsPage() {
                             loading={loading}
                         />
                     )}
-                </div>
+                </Card>
             </div>
         </AppLayout>
     );

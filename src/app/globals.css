@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../styles/tokens-base.css";
 @import "../styles/tokens-classic.css";
+@import "../styles/tokens-focus.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -23,6 +24,9 @@
     --color-background-dark: var(--color-bg-base);
     --color-sidebar-bg: var(--color-sidebar-bg);
     --color-sidebar-border: var(--color-sidebar-border);
+    --color-sidebar-item-active-bg: var(--color-sidebar-item-active-bg);
+    --color-sidebar-item-active-text: var(--color-sidebar-item-active-text);
+    --color-sidebar-item-active-border: var(--color-sidebar-item-active-border);
     --color-bg-surface: var(--color-bg-surface);
     --color-bg-surface-hover: var(--color-bg-surface-hover);
     --color-bg-input: var(--color-bg-input);
@@ -35,7 +39,71 @@
     --color-border-hover: var(--color-border-hover);
     --color-border-strong: var(--color-border-strong);
     --font-sans: var(--font-body);
-    --font-mono: var(--font-geist-mono);
+    --font-mono: var(--font-fragment-mono), ui-monospace, SFMono-Regular, monospace;
+    /* Familias por rol — resuelven al token del tema activo */
+    --font-display: var(--font-display);
+    --font-headline: var(--font-display);
+    --font-title: var(--font-display);
+    --font-body: var(--font-body);
+    --font-label: var(--font-body);
+
+    /* Escala tipográfica — Aure Focus System */
+    --text-display-lg: 40px;
+    --text-display-lg--line-height: 48px;
+    --text-display-lg--letter-spacing: -0.5px;
+    --text-display-lg--font-weight: 600;
+    --text-display-lg-mobile: 28px;
+    --text-display-lg-mobile--line-height: 34px;
+    --text-display-lg-mobile--letter-spacing: -0.25px;
+    --text-display-lg-mobile--font-weight: 600;
+    --text-headline-lg: 28px;
+    --text-headline-lg--line-height: 36px;
+    --text-headline-lg--letter-spacing: -0.25px;
+    --text-headline-lg--font-weight: 600;
+    --text-headline-md: 22px;
+    --text-headline-md--line-height: 28px;
+    --text-headline-md--letter-spacing: 0px;
+    --text-headline-md--font-weight: 600;
+    --text-title-lg: 18px;
+    --text-title-lg--line-height: 24px;
+    --text-title-lg--letter-spacing: 0px;
+    --text-title-lg--font-weight: 600;
+    --text-title-md: 16px;
+    --text-title-md--line-height: 22px;
+    --text-title-md--letter-spacing: 0px;
+    --text-title-md--font-weight: 600;
+    --text-body-lg: 16px;
+    --text-body-lg--line-height: 24px;
+    --text-body-lg--letter-spacing: 0px;
+    --text-body-lg--font-weight: 400;
+    --text-body-md: 14px;
+    --text-body-md--line-height: 20px;
+    --text-body-md--letter-spacing: 0px;
+    --text-body-md--font-weight: 400;
+    --text-label-lg: 14px;
+    --text-label-lg--line-height: 20px;
+    --text-label-lg--letter-spacing: 0px;
+    --text-label-lg--font-weight: 500;
+    --text-label-md: 12px;
+    --text-label-md--line-height: 16px;
+    --text-label-md--letter-spacing: 0.25px;
+    --text-label-md--font-weight: 500;
+    --text-label-sm: 11px;
+    --text-label-sm--line-height: 16px;
+    --text-label-sm--letter-spacing: 0.25px;
+    --text-label-sm--font-weight: 400;
+
+    /* Sombras por token (claro/oscuro resuelven en el tema activo) */
+    --shadow-sm: var(--shadow-sm);
+    --shadow-md: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg);
+    --shadow-glow: var(--shadow-glow);
+
+    /* Radios semánticos (ADR-001) */
+    --radius-card: 12px;
+    --radius-control: 8px;
+    --radius-pill: 9999px;
+
     /* Aure palette */
     --color-deep-space: #181824;
     --color-charcoal-surface: #26253b;
@@ -57,6 +125,67 @@ body {
     color: var(--color-text-primary);
     font-family: var(--font-body);
     letter-spacing: var(--tracking-body);
+}
+
+/* Las opciones nativas no heredan tokens en todos los navegadores:
+   sin esto, el desplegable pinta fondo claro con texto claro en dark. */
+select {
+    accent-color: var(--color-primary);
+}
+
+select option {
+    background-color: var(--color-bg-surface);
+    color: var(--color-text-primary);
+}
+
+select option:checked,
+select option:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+/* Controles nativos (date, select, scrollbars) en modo oscuro */
+.dark {
+    color-scheme: dark;
+}
+
+/* Motion tokens — ADR: 120ms estado / 200ms superficie */
+@utility transition-state {
+    transition-property: color, background-color, border-color, outline-color, box-shadow, opacity, transform;
+    transition-duration: 120ms;
+    transition-timing-function: ease-out;
+}
+
+@utility transition-surface {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Acordeón de navegación: 0fr → 1fr sin alturas mágicas ni estilos inline */
+.sidebar-children {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+        grid-template-rows 200ms cubic-bezier(0.2, 0, 0, 1),
+        opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.sidebar-children[data-open='true'] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-children {
+        transition: none;
+    }
+}
+
+/* Área segura en iOS para la barra inferior */
+@utility pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
 /* Custom Scrollbar */
@@ -100,21 +229,6 @@ body {
 }
 .animate-slide-in {
     animation: slide-in 0.3s ease-out;
-}
-
-/* Sidebar active item styling */
-#nav-links a.active,
-#main-sidebar nav a.active {
-    color: var(--color-sidebar-item-active-text);
-}
-
-/* Sidebar token-based hover states */
-.sidebar-profile-btn:hover {
-    background: var(--color-bg-surface-hover);
-}
-
-.sidebar-dropdown-item:hover {
-    background: var(--color-bg-surface-hover);
 }
 
 /* Habit component token-based hover states */
@@ -175,16 +289,6 @@ body {
     border-color: var(--color-success) !important;
 }
 
-.todo-action-btn-info:hover {
-    color: var(--color-info);
-    background: color-mix(in srgb, var(--color-info) 10%, transparent);
-}
-
-.todo-action-btn-primary:hover {
-    color: var(--color-primary);
-    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-}
-
 .todo-action-btn-danger:hover {
     color: var(--color-danger);
     background: color-mix(in srgb, var(--color-danger) 10%, transparent);
@@ -200,10 +304,6 @@ body {
 
 .todo-clear-filters:hover {
     background: color-mix(in srgb, var(--color-danger) 8%, transparent);
-}
-
-.todo-error-close:hover {
-    background: color-mix(in srgb, var(--color-danger) 15%, transparent);
 }
 
 .todo-search-clear:hover {
@@ -465,10 +565,6 @@ body {
 }
 
 /* Reminder page token-based hover/state classes */
-.reminder-filter-btn-inactive:hover {
-    filter: brightness(0.92);
-}
-
 .reminder-add-btn:hover {
     filter: brightness(0.92);
 }
@@ -479,18 +575,4 @@ body {
 
 .reminder-cancel-btn:hover {
     background: var(--color-bg-surface-hover);
-}
-
-.reminder-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--color-border-hover);
-    transform: translateY(-1px);
-}
-
-.reminder-date-default {
-    color: var(--color-text-secondary);
-}
-
-.reminder-prio-normal-icon {
-    color: var(--color-text-muted);
 }

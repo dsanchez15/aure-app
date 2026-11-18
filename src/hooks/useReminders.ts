@@ -6,10 +6,34 @@ import type { Reminder } from '@/types/reminder'
 
 export type ReminderFilter = 'all' | 'pending' | 'completed'
 
+const FILTER_KEY = 'aure-reminder-filter'
+
+function isReminderFilter(value: string | null): value is ReminderFilter {
+  return value === 'all' || value === 'pending' || value === 'completed'
+}
+
 export function useReminders() {
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<ReminderFilter>('pending')
+  const [filter, setFilterState] = useState<ReminderFilter>('pending')
+
+  useEffect(() => {
+    try {
+      const stored = window.sessionStorage.getItem(FILTER_KEY)
+      if (isReminderFilter(stored)) setFilterState(stored)
+    } catch {
+      // Sin persistencia si el navegador la bloquea.
+    }
+  }, [])
+
+  const setFilter = useCallback((next: ReminderFilter) => {
+    setFilterState(next)
+    try {
+      window.sessionStorage.setItem(FILTER_KEY, next)
+    } catch {
+      // Sin persistencia si el navegador la bloquea.
+    }
+  }, [])
 
   const fetchReminders = useCallback(async () => {
     try {

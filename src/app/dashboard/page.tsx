@@ -5,6 +5,7 @@ import AppLayout from '@/components/AppLayout'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useDashboardData } from '@/hooks/useDashboardData'
 import { useFeatureFlags } from '@/hooks/useFeatureFlags'
+import { MetricCard } from '@/components/ui'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import HabitGrid from '@/components/dashboard/HabitGrid'
 import PerformanceSection from '@/components/dashboard/PerformanceSection'
@@ -12,8 +13,8 @@ import WeeklyCompliance from '@/components/dashboard/WeeklyCompliance'
 import TaskLists from '@/components/dashboard/TaskLists'
 import QuickRegisterForm from '@/components/dashboard/QuickRegisterForm'
 import DashboardCalendar from '@/components/dashboard/DashboardCalendar'
-import Scorecard from '@/components/dashboard/Scorecard'
 import UpcomingReminders from '@/components/dashboard/UpcomingReminders'
+import TodoStatsCard from '@/components/dashboard/TodoStatsCard'
 
 export default function DashboardPage() {
   const { t } = useAppTranslation()
@@ -77,22 +78,32 @@ export default function DashboardPage() {
           onNext={goNext}
         />
 
+        <section aria-label={t('dashboard.scorecard')} className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <MetricCard label={t('dashboard.pendingTasks')} value={metrics?.pendingTasks ?? 0} tone="warning" />
+          <MetricCard label={t('dashboard.activeProjects')} value={metrics?.activeProjects ?? 0} tone="success" />
+          <MetricCard label={t('dashboard.dayStreak')} value={metrics?.overallStreak ?? 0} tone="primary" />
+          <MetricCard
+            label={t('dashboard.complianceLabel')}
+            value={`${metrics?.weeklyCompliance ?? 0}%`}
+            tone="primary"
+          />
+        </section>
+
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* ═══ MAIN CONTENT ═══ */}
           <main className="flex-1 space-y-8">
             {/* Overload Warning */}
             {isOverloaded && (
               <div
-                className="flex items-start gap-3 rounded-[8px] border p-4"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-danger) 8%, transparent)',
-                  borderColor: 'color-mix(in srgb, var(--color-danger) 30%, transparent)',
-                }}
+                role="status"
+                className="flex items-start gap-3 rounded-card border border-danger/30 bg-danger/10 p-4"
               >
-                <span className="material-symbols-outlined text-danger">warning</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-danger">
+                  warning
+                </span>
                 <div>
-                  <p className="text-sm font-medium text-danger">{t('dashboard.overloadWarning.title')}</p>
-                  <p className="mt-0.5 text-xs text-danger/80">
+                  <p className="font-label text-label-lg text-danger">{t('dashboard.overloadWarning.title')}</p>
+                  <p className="mt-0.5 font-label text-label-sm text-danger/80">
                     {t('dashboard.overloadWarning.message', { count: selectedWorkload.score })}
                   </p>
                 </div>
@@ -102,7 +113,6 @@ export default function DashboardPage() {
             {flags.habits && (
               <div>
                 <HabitGrid habits={habits} onMarkDone={markHabitDone} />
-                <WeeklyCompliance metrics={metrics} />
               </div>
             )}
 
@@ -130,7 +140,8 @@ export default function DashboardPage() {
 
           {/* ═══ RIGHT SIDEBAR ═══ */}
           <aside className="w-full space-y-6 lg:w-80">
-            <Scorecard metrics={metrics} />
+            <TodoStatsCard />
+            {flags.habits && <WeeklyCompliance metrics={metrics} />}
             {flags.reminders && (
               <UpcomingReminders reminders={upcomingReminders} onMarkDone={markReminderDone} />
             )}

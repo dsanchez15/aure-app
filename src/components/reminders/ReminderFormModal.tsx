@@ -194,20 +194,16 @@ export default function ReminderFormModal({ reminder, onSaved, onClose }: Remind
 
         {/* Conflict warning */}
         {conflictWarning && (
-          <div
-            className="rounded-[8px] border p-3"
-            style={{
-              background: 'color-mix(in srgb, var(--color-warning) 8%, transparent)',
-              borderColor: 'color-mix(in srgb, var(--color-warning) 30%, transparent)',
-            }}
-          >
+          <div className="rounded-control border border-warning/30 bg-warning/10 p-3">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-warning">warning</span>
-              <span className="text-sm font-medium text-warning">
+              <span aria-hidden="true" className="material-symbols-outlined text-warning">
+                warning
+              </span>
+              <span className="font-label text-label-lg text-warning">
                 {t('reminders.form.conflictsOn', { count: conflictWarning.conflicts.length, date: conflictWarning.date })}
               </span>
             </div>
-            <ul className="ml-6 mt-1 list-disc text-xs text-warning/80">
+            <ul className="ml-6 mt-1 list-disc font-label text-label-md text-warning/80">
               {conflictWarning.conflicts.slice(0, 3).map((c, i) => (
                 <li key={i}>
                   {c.title} ({c.module})
@@ -264,7 +260,7 @@ export default function ReminderFormModal({ reminder, onSaved, onClose }: Remind
         <BlockersManager blockers={blockers} onChange={setBlockers} />
 
         <div className="flex gap-3 pt-2">
-          <Button variant="secondary" fullWidth onClick={onClose} className="border border-border">
+          <Button variant="secondary" fullWidth onClick={onClose}>
             {t('common.cancel')}
           </Button>
           <Button type="submit" fullWidth disabled={!title.trim() || !dueDate || saving}>

@@ -133,14 +133,14 @@ export default function ExpandedItems({
   const orderedTree = buildOrderedTree(itemsList)
 
   return (
-    <div className="border-t px-4 pb-4 pt-3" style={{ borderColor: 'var(--color-border)' }}>
+    <div className="border-t border-border px-4 pb-4 pt-3">
       {completedCount > 0 && mode !== 'history' && (
         <div className="mb-2 flex items-center justify-end">
           <button
             onClick={() => setHideCompleted(!hideCompleted)}
-            className="checklist-hide-toggle flex items-center gap-1 text-xs text-text-muted"
+            className="flex items-center gap-1 font-label text-label-md text-text-muted transition-state hover:text-text-secondary"
           >
-            <span className="material-symbols-outlined text-xs">
+            <span className="material-symbols-outlined text-label-md">
               {hideCompleted ? 'visibility' : 'visibility_off'}
             </span>
             {hideCompleted
@@ -151,7 +151,7 @@ export default function ExpandedItems({
       )}
 
       {visibleItems.length === 0 ? (
-        <p className="py-3 text-center text-sm text-text-muted">
+        <p className="py-3 text-center font-body text-body-md text-text-muted">
           {hideCompleted
             ? t('checklists.expandedItems.allCompleted')
             : t('checklists.expandedItems.noItems')}
@@ -212,11 +212,11 @@ export default function ExpandedItems({
       )}
 
       {dragError && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-danger px-4 py-2 text-sm text-white shadow-lg">
-          <span className="material-symbols-outlined text-sm">error</span>
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-card bg-danger px-4 py-2 font-body text-body-md text-text-inverse shadow-lg">
+          <span className="material-symbols-outlined text-body-md">error</span>
           {dragError}
-          <button onClick={() => setDragError(null)} className="ml-2 hover:opacity-80">
-            <span className="material-symbols-outlined text-sm">close</span>
+          <button onClick={() => setDragError(null)} className="ml-2 transition-state hover:opacity-80">
+            <span className="material-symbols-outlined text-body-md">close</span>
           </button>
         </div>
       )}

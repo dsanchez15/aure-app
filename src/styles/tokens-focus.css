@@ -1,0 +1,127 @@
+/* =========================================================================
+   TOKENS FOCUS — "Aure Focus System"
+   =========================================================================
+   Segundo tema visual. Se activa con data-visual-theme="focus" en <html>.
+   Light:  [data-visual-theme="focus"]
+   Dark:   [data-visual-theme="focus"].dark   (mayor especificidad)
+
+   Contrato: define los mismos tokens que tokens-base.css (33 tokens de
+   color/sombra/decorativos) para que cualquier componente siga funcionando.
+   Regla: --outline-equivalente (text-muted) NUNCA baja de 4.5:1 sobre
+   superficies; si se necesita un gris para bordes, usar --color-border*.
+   ========================================================================= */
+
+[data-visual-theme='focus'] {
+  /* ─── Backgrounds ─── */
+  --color-bg-base: #f7f6f2;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-hover: #efece6;
+  --color-bg-input: #f7f6f2;
+  --color-bg-overlay: rgba(28, 27, 24, 0.25);
+
+  /* ─── Texts ─── */
+  --color-text-primary: #1c1b18;
+  --color-text-secondary: #5e5c55;
+  --color-text-muted: #706e66;
+  --color-text-inverse: #ffffff;
+
+  /* ─── Accents ─── */
+  --color-primary: #235347;
+  --color-primary-hover: #1b4038;
+  --color-primary-light: rgba(35, 83, 71, 0.1);
+  --color-primary-glow: rgba(35, 83, 71, 0.22);
+
+  /* ─── Borders ─── */
+  --color-border: #e2dfd7;
+  --color-border-hover: #c9c5ba;
+  --color-border-strong: #8c8980;
+
+  /* ─── States ─── */
+  --color-success: #2e6f40;
+  --color-warning: #8a5c00;
+  --color-danger: #b42318;
+  --color-info: #1f6a8c;
+
+  /* ─── Sidebar ─── */
+  --color-sidebar-bg: #ffffff;
+  --color-sidebar-border: #e2dfd7;
+  --color-sidebar-item-active-bg: #e2ece9;
+  --color-sidebar-item-active-text: #13332b;
+  --color-sidebar-item-active-border: #235347;
+
+  /* ─── Shadows ─── */
+  --shadow-sm: 0 1px 2px rgba(28, 27, 24, 0.06);
+  --shadow-md: 0 4px 6px rgba(28, 27, 24, 0.08);
+  --shadow-lg: 0 10px 15px rgba(28, 27, 24, 0.12);
+  --shadow-glow: 0 0 20px rgba(35, 83, 71, 0.15);
+
+  /* ─── Typography ─── */
+  --font-body: var(--font-commissioner), 'Commissioner', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-mona-sans), 'Mona Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-fragment-mono), 'Fragment Mono', ui-monospace, monospace;
+  --tracking-body: 0;
+  --tracking-display: -0.25px;
+
+  /* ─── Radii (ADR-001: 12 tarjetas / 8 controles) ─── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* ─── Decorative ─── */
+  --deco-grid-line: transparent;
+  --deco-sidebar-top-line: none;
+  --deco-logo-bg: var(--color-primary);
+  --deco-logo-shadow: none;
+}
+
+[data-visual-theme='focus'].dark {
+  /* ─── Backgrounds ─── */
+  --color-bg-base: #161614;
+  --color-bg-surface: #1e1e1b;
+  --color-bg-surface-hover: #262622;
+  --color-bg-input: #161614;
+  --color-bg-overlay: rgba(0, 0, 0, 0.45);
+
+  /* ─── Texts ─── */
+  --color-text-primary: #eceae4;
+  --color-text-secondary: #a3a096;
+  --color-text-muted: #918e85;
+  --color-text-inverse: #0d2b24;
+
+  /* ─── Accents ─── */
+  --color-primary: #8cc2b3;
+  --color-primary-hover: #a5d3c5;
+  --color-primary-light: rgba(140, 194, 179, 0.14);
+  --color-primary-glow: rgba(140, 194, 179, 0.28);
+
+  /* ─── Borders ─── */
+  --color-border: #33322d;
+  --color-border-hover: #45443e;
+  --color-border-strong: #737067;
+
+  /* ─── States ─── */
+  --color-success: #57a773;
+  --color-warning: #e3b341;
+  --color-danger: #e56b6f;
+  --color-info: #7fb7d6;
+
+  /* ─── Sidebar ─── */
+  --color-sidebar-bg: #1e1e1b;
+  --color-sidebar-border: #33322d;
+  --color-sidebar-item-active-bg: #1a3d34;
+  --color-sidebar-item-active-text: #cbe5dd;
+  --color-sidebar-item-active-border: #8cc2b3;
+
+  /* ─── Shadows ─── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 20px rgba(140, 194, 179, 0.18);
+
+  /* ─── Decorative ─── */
+  --deco-grid-line: transparent;
+  --deco-sidebar-top-line: none;
+  --deco-logo-bg: var(--color-primary);
+  --deco-logo-shadow: none;
+}

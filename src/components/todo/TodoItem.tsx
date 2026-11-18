@@ -2,6 +2,7 @@
 
 import { useState, memo } from 'react'
 import { Button, Input } from '@/components/ui'
+import { useAppTranslation } from '@/components/LanguageProvider'
 import type { Todo } from '@/types/todo'
 
 interface TodoItemProps {
@@ -14,6 +15,40 @@ interface TodoItemProps {
   onCreateSubtask: (parentId: number, title: string) => void
 }
 
+function CheckCircle({
+  completed,
+  onClick,
+  size = 'md',
+}: {
+  completed: boolean
+  onClick: () => void
+  size?: 'md' | 'sm'
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      role="checkbox"
+      aria-checked={completed}
+      className={`flex shrink-0 items-center justify-center rounded-pill border-2 transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+        size === 'md' ? 'h-6 w-6' : 'h-5 w-5'
+      } ${completed ? 'border-success bg-success text-text-inverse' : 'border-border-strong bg-transparent'}`}
+    >
+      {completed && (
+        <svg
+          aria-hidden="true"
+          className={size === 'md' ? 'h-4 w-4' : 'h-3 w-3'}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+        </svg>
+      )}
+    </button>
+  )
+}
+
 function TodoItem({
   todo,
   isSelected,
@@ -23,6 +58,7 @@ function TodoItem({
   onSelect,
   onCreateSubtask,
 }: TodoItemProps) {
+  const { t } = useAppTranslation()
   const [showSubtasks, setShowSubtasks] = useState(false)
   const [showAddSubtask, setShowAddSubtask] = useState(false)
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('')
@@ -37,120 +73,112 @@ function TodoItem({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <div
-        className={`todo-item-card group todo-item-hover flex items-start gap-3 rounded-[8px] border-2 p-4 transition-all ${
-          todo.completed ? 'todo-item-card-completed' : ''
-        }`}
-        style={{
-          background: todo.completed ? 'var(--color-bg-surface-hover)' : 'var(--color-bg-surface)',
-          borderColor: isSelected ? 'var(--color-primary)' : 'var(--color-border)',
-        }}
+        className={`group flex items-start gap-3 rounded-card border p-4 transition-surface ${
+          todo.completed ? 'bg-bg-surface-hover' : 'bg-bg-surface'
+        } ${isSelected ? 'border-primary' : 'border-border hover:border-border-hover'}`}
       >
-        {/* Checkbox */}
-        <button
-          onClick={() => onToggle(todo.id, !todo.completed)}
-          role="checkbox"
-          aria-checked={todo.completed}
-          className={`todo-checkbox mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            todo.completed ? 'todo-checkbox-checked' : 'todo-checkbox-unchecked'
-          }`}
-          style={{
-            background: todo.completed ? 'var(--color-success)' : 'transparent',
-            borderColor: todo.completed ? 'var(--color-success)' : 'var(--color-border-strong)',
-          }}
-        >
-          {todo.completed && (
-            <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          )}
-        </button>
+        <span className="pt-0.5">
+          <CheckCircle completed={todo.completed} onClick={() => onToggle(todo.id, !todo.completed)} />
+        </span>
 
-        {/* Main content area */}
         <div
-          className="flex min-w-0 flex-1 cursor-pointer flex-col gap-2 sm:flex-row sm:items-start"
+          className="flex min-w-0 flex-1 cursor-pointer flex-col gap-1"
           onClick={() => onSelect(todo)}
         >
-          <div className="min-w-0 flex-1 space-y-1">
-            <span
-              onDoubleClick={(e) => {
+          <span
+            onDoubleClick={(e) => {
+              e.stopPropagation()
+              onEdit(todo)
+            }}
+            className={`block break-words font-label text-label-lg ${
+              todo.completed ? 'text-text-muted line-through' : 'text-text-primary'
+            }`}
+          >
+            {todo.title}
+          </span>
+
+          {todo.description && (
+            <p className="font-body text-body-md text-text-secondary">{todo.description}</p>
+          )}
+
+          {(todo.subTasksCount || 0) > 0 && (
+            <button
+              type="button"
+              onClick={(e) => {
                 e.stopPropagation()
-                onEdit(todo)
+                setShowSubtasks(!showSubtasks)
               }}
-              className={`block break-words text-base font-medium ${
-                todo.completed ? 'line-through' : ''
-              }`}
-              style={{
-                color: todo.completed ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
-              }}
+              className="mt-1 flex w-fit items-center gap-1 rounded-pill bg-bg-surface-hover px-2 py-0.5 font-label text-label-sm text-text-secondary transition-state hover:text-text-primary"
             >
-              {todo.title}
-            </span>
-
-            {todo.description && (
-              <p className="text-sm text-text-secondary">{todo.description}</p>
-            )}
-
-            {(todo.subTasksCount || 0) > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowSubtasks(!showSubtasks)
-                }}
-                className="todo-subtask-toggle mt-1 flex items-center gap-1 rounded-full bg-bg-surface-hover px-2 py-0.5 text-text-secondary transition-colors"
+              <span
+                aria-hidden="true"
+                className={`material-symbols-outlined text-sm transition-transform ${
+                  showSubtasks ? 'rotate-180' : ''
+                }`}
               >
-                <span className={`material-symbols-outlined text-sm transition-transform ${showSubtasks ? 'rotate-180' : ''}`}>
-                  expand_more
-                </span>
-                <span className="text-xs font-medium">Subtasks</span>
-                <span className="text-xs text-text-muted">
-                  {todo.completedSubTasksCount}/{todo.subTasksCount}
-                </span>
-              </button>
-            )}
-          </div>
+                expand_more
+              </span>
+              <span>{t('todos.subtasks')}</span>
+              <span className="text-text-muted">
+                {todo.completedSubTasksCount}/{todo.subTasksCount}
+              </span>
+            </button>
+          )}
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <button
+        <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2"
             onClick={() => setShowAddSubtask(!showAddSubtask)}
-            className="todo-action-btn todo-action-btn-info rounded-[8px] p-2 text-text-muted transition-colors"
-            title="Add subtask"
+            aria-label={t('todos.addSubtask')}
           >
-            <span className="material-symbols-outlined text-lg">add_task</span>
-          </button>
-          <button
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">
+              add_task
+            </span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2"
             onClick={() => onEdit(todo)}
-            className="todo-action-btn todo-action-btn-primary rounded-[8px] p-2 text-text-muted transition-colors"
-            title="Edit"
+            aria-label={t('todos.editTitle')}
           >
-            <span className="material-symbols-outlined text-lg">edit</span>
-          </button>
-          <button
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">
+              edit
+            </span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 text-danger hover:bg-danger/10"
             onClick={() => onDelete(todo.id)}
-            className="todo-action-btn todo-action-btn-danger rounded-[8px] p-2 text-text-muted transition-colors"
-            title="Delete"
+            aria-label={t('common.delete')}
           >
-            <span className="material-symbols-outlined text-lg">delete</span>
-          </button>
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">
+              delete
+            </span>
+          </Button>
         </div>
       </div>
 
-      {/* Add Subtask Form */}
       {showAddSubtask && (
         <div className="ml-8">
-          <form onSubmit={handleAddSubtask} className="flex gap-2">
+          <form onSubmit={handleAddSubtask} className="flex flex-wrap gap-2">
             <Input
               fieldSize="sm"
               value={newSubtaskTitle}
               onChange={(e) => setNewSubtaskTitle(e.target.value)}
-              placeholder="Subtask title..."
+              placeholder={t('todos.subtaskPlaceholder')}
+              aria-label={t('todos.subtaskPlaceholder')}
+              className="min-w-40 flex-1"
               autoFocus
             />
             <Button type="submit" size="sm" disabled={!newSubtaskTitle.trim()}>
-              Add
+              {t('todos.add')}
             </Button>
             <Button
               variant="ghost"
@@ -160,53 +188,42 @@ function TodoItem({
                 setNewSubtaskTitle('')
               }}
             >
-              Cancel
+              {t('todos.form.cancel')}
             </Button>
           </form>
         </div>
       )}
 
-      {/* Subtasks */}
       {showSubtasks && todo.subTasks && todo.subTasks.length > 0 && (
         <div className="ml-8 space-y-2">
           {todo.subTasks.map((subtask) => (
             <div
               key={subtask.id}
-              className={`subtask-card group flex items-center gap-3 rounded-[8px] border border-border bg-bg-surface-hover p-3 ${
-                subtask.completed ? 'subtask-card-completed' : ''
-              }`}
+              className="group flex items-center gap-3 rounded-control border border-border bg-bg-surface-hover p-3"
             >
-              <button
+              <CheckCircle
+                size="sm"
+                completed={subtask.completed}
                 onClick={() => onToggle(subtask.id, !subtask.completed)}
-                role="checkbox"
-                aria-checked={subtask.completed}
-                className={`subtask-checkbox flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-                  subtask.completed ? 'subtask-checkbox-checked' : 'subtask-checkbox-unchecked'
-                }`}
-                style={{
-                  background: subtask.completed ? 'var(--color-success)' : 'transparent',
-                  borderColor: subtask.completed ? 'var(--color-success)' : 'var(--color-border-strong)',
-                }}
-              >
-                {subtask.completed && (
-                  <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
+              />
               <span
-                className={`flex-1 text-sm ${subtask.completed ? 'line-through' : ''}`}
-                style={{ color: subtask.completed ? 'var(--color-text-muted)' : 'var(--color-text-secondary)' }}
+                className={`flex-1 font-body text-body-md ${
+                  subtask.completed ? 'text-text-muted line-through' : 'text-text-secondary'
+                }`}
               >
                 {subtask.title}
               </span>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-1.5 text-text-muted opacity-0 group-hover:opacity-100"
                 onClick={() => onDelete(subtask.id)}
-                className="todo-action-btn-danger rounded p-1 text-text-muted opacity-0 transition-colors group-hover:opacity-100"
-                title="Delete subtask"
+                aria-label={t('common.delete')}
               >
-                <span className="material-symbols-outlined text-sm">delete</span>
-              </button>
+                <span aria-hidden="true" className="material-symbols-outlined text-base">
+                  delete
+                </span>
+              </Button>
             </div>
           ))}
         </div>

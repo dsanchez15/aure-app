@@ -1,22 +1,16 @@
 import { SelectHTMLAttributes, forwardRef, useId } from 'react'
-import { FieldWrapper, type FieldSize } from './Input'
-
-const baseSelectClasses =
-  'w-full rounded-[8px] border border-border bg-bg-input text-text-primary focus:outline-none focus:border-border-strong transition-colors disabled:opacity-50'
-
-const sizeClasses: Record<FieldSize, string> = {
-  sm: 'px-3 py-2 text-sm',
-  md: 'px-4 py-2.5',
-}
+import { Field } from './Field'
+import { fieldControlBase, fieldSizeClasses, fieldWidth, type FieldSize } from './fieldStyles'
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
   error?: string
+  hint?: string
   fieldSize?: FieldSize
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { label, error, fieldSize = 'md', className = '', id, children, ...props },
+  { label, error, hint, fieldSize = 'md', className = '', id, children, ...props },
   ref
 ) {
   const autoId = useId()
@@ -25,17 +19,18 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
     <select
       ref={ref}
       id={selectId}
-      className={`${baseSelectClasses} ${sizeClasses[fieldSize]} ${className}`}
+      className={`${fieldControlBase} ${fieldWidth(className)} ${fieldSizeClasses[fieldSize]} pr-8 ${className}`}
+      aria-invalid={error ? true : undefined}
       {...props}
     >
       {children}
     </select>
   )
-  if (!label && !error) return field
+  if (!label && !error && !hint) return field
   return (
-    <FieldWrapper label={label} error={error} htmlFor={selectId}>
+    <Field label={label} error={error} hint={hint} htmlFor={selectId}>
       {field}
-    </FieldWrapper>
+    </Field>
   )
 })
 

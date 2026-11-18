@@ -6,6 +6,7 @@ import { calculateStreak, calculateCompletionRate, getPeriodLabel, getPeriodRang
 import UserProgressionBadge from './UserProgressionBadge'
 import EnergySelector from './EnergySelector'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { Card, EmptyState, SectionHeader, Spinner } from '@/components/ui'
 
 interface ToggleCompletionResult {
   xp?: {
@@ -92,83 +93,70 @@ export default function ActionView({ habits, onToggleCompletion, loading }: Acti
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <Spinner size="lg" className="min-h-96" />
   }
 
   return (
-    <div className="space-y-6 relative">
+    <div className="relative space-y-6">
       {/* XP Popups */}
       {xpPopups.length > 0 && (
-        <div className="fixed top-4 right-4 z-50 space-y-2">
+        <div className="fixed right-4 top-4 z-50 space-y-2">
           {xpPopups.map((popup) => (
-            <div
-              key={popup.id}
-              className="xp-popup rounded-xl shadow-lg border p-4"
-              style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }}
-            >
+            <Card key={popup.id} padding="md" className="shadow-lg">
               {popup.leveledUp && (
-                <div className="text-center mb-2">
-                  <span className="text-2xl">🎉</span>
-                  <p className="level-up-text text-lg font-bold text-primary">{t('habits.action.levelUp')}</p>
-                  <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.action.level', { level: popup.newLevel, name: getLevelName(popup.newLevel) })}</p>
+                <div className="mb-2 text-center">
+                  <span aria-hidden="true" className="text-headline-md">🎉</span>
+                  <p className="font-display text-title-lg text-primary">{t('habits.action.levelUp')}</p>
+                  <p className="font-body text-body-md text-text-secondary">{t('habits.action.level', { level: popup.newLevel, name: getLevelName(popup.newLevel) })}</p>
                 </div>
               )}
               {popup.milestone && (
-                <p className="milestone-text text-sm font-medium text-center" style={{ color: 'var(--color-warning)' }}>
+                <p className="text-center font-label text-label-md text-warning">
                   🏆 {popup.milestone}
                 </p>
               )}
               {!popup.leveledUp && !popup.milestone && (
-                <p className="text-sm text-center" style={{ color: 'var(--color-text-secondary)' }}>
+                <p className="text-center font-body text-body-md text-text-secondary">
                   +{popup.xp} XP
                 </p>
               )}
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('habits.action.title')}</h2>
-          <p className="mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            {t('habits.action.completedToday', { completed: completedCount, total: habitsWithMetrics.length })}
-          </p>
-        </div>
-        <UserProgressionBadge />
-      </div>
+      <SectionHeader
+        title={t('habits.action.title')}
+        description={t('habits.action.completedToday', { completed: completedCount, total: habitsWithMetrics.length })}
+        actions={<UserProgressionBadge />}
+      />
 
       {/* Summary */}
       {habitsWithMetrics.length > 0 && (
-        <div className="dashboard-card rounded-xl p-4 shadow-sm border" style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }}>
+        <Card padding="md">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <div className="habit-progress-track h-3 rounded-full overflow-hidden" style={{ background: 'var(--color-bg-input)' }}>
+              <div className="h-3 overflow-hidden rounded-pill bg-bg-input">
                 <div
-                  className="habit-progress-fill h-full rounded-full transition-all duration-500"
+                  className="h-full rounded-pill bg-success transition-surface"
                   style={{
-                    backgroundColor: 'var(--color-success)',
                     width: `${habitsWithMetrics.length > 0 ? (completedCount / habitsWithMetrics.length) * 100 : 0}%`,
                   }}
                 />
               </div>
             </div>
-            <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            <span className="font-label text-label-lg text-text-secondary">
               {Math.round((completedCount / Math.max(1, habitsWithMetrics.length)) * 100)}%
             </span>
           </div>
-        </div>
+        </Card>
       )}
 
       {habitsWithMetrics.length === 0 ? (
-        <div className="empty-state text-center py-16 rounded-xl border border-dashed" style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)' }}>
-          <p className="text-lg" style={{ color: 'var(--color-text-muted)' }}>{t('habits.action.noActiveHabits')}</p>
-          <p className="mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('habits.action.createInPlanning')}</p>
-        </div>
+        <EmptyState
+          title={t('habits.action.noActiveHabits')}
+          description={t('habits.action.createInPlanning')}
+        />
       ) : (
         <div className="grid gap-3">
           {habitsWithMetrics.map((habit) => {
@@ -178,51 +166,50 @@ export default function ActionView({ habits, onToggleCompletion, loading }: Acti
             const periodRange = getPeriodRangeText(habit.goalType)
 
             return (
-              <div
+              <Card
                 key={habit.id}
-                className={`action-row rounded-xl p-4 shadow-sm border-l-4 transition-all hover:shadow-md ${
-                  isCompleted ? 'action-row-completed opacity-75' : ''
+                padding="md"
+                className={`border-l-4 transition-surface hover:border-border-hover hover:shadow-md ${
+                  isCompleted ? 'opacity-75' : ''
                 }`}
-                style={{ background: 'var(--color-bg-surface)', borderLeftColor: habit.color }}
+                style={{ borderLeftColor: habit.color }}
               >
                 <div className="flex items-center gap-4">
                   <button
+                    type="button"
                     onClick={() => handleToggle(habit.id, isCompleted)}
                     disabled={completingId === habit.id}
-                    className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                    aria-pressed={isCompleted}
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-control transition-state ${
                       isCompleted
-                        ? 'toggle-btn-completed'
-                        : 'toggle-btn-pending action-toggle-btn-pending'
+                        ? 'bg-success/15 text-success hover:bg-success/20'
+                        : 'bg-bg-input text-text-muted hover:bg-bg-surface-hover hover:text-text-secondary'
                     }`}
-                    style={isCompleted
-                      ? { background: 'color-mix(in srgb, var(--color-success) 15%, transparent)', color: 'var(--color-success)' }
-                      : { background: 'var(--color-bg-input)', color: 'var(--color-text-muted)' }
-                    }
                   >
                     {completingId === habit.id ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current" />
+                      <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-current" />
                     ) : isCompleted ? (
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                     ) : (
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     )}
                   </button>
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className={`font-semibold truncate ${isCompleted ? 'line-through' : ''}`} style={{ color: isCompleted ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}>
+                  <div className="min-w-0 flex-1">
+                    <h3 className={`truncate font-display text-title-md ${isCompleted ? 'text-text-muted line-through' : 'text-text-primary'}`}>
                       {habit.title}
                     </h3>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                    <p className="mt-0.5 font-label text-label-sm text-text-muted">
                       {habit.metrics.completionsThisPeriod} / {habit.goalValue} {periodLabel}
                       {periodRange && ` (${periodRange})`}
                     </p>
-                    <div className="mt-2 h-2 rounded-full overflow-hidden" style={{ background: 'var(--color-bg-input)' }}>
+                    <div className="mt-2 h-2 overflow-hidden rounded-pill bg-bg-input">
                       <div
-                        className="h-full rounded-full transition-all duration-500"
+                        className="h-full rounded-pill transition-surface"
                         style={{
                           width: `${progress}%`,
                           backgroundColor: habit.color,
@@ -232,15 +219,15 @@ export default function ActionView({ habits, onToggleCompletion, loading }: Acti
                   </div>
 
                   {habit.metrics.currentStreak > 0 && (
-                    <div className="flex items-center gap-1 text-orange-500 flex-shrink-0">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="flex shrink-0 items-center gap-1 text-warning">
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879.586.585.88 1.2.879 1.879 0 1.5-1.12 2.99-2.76 2.99-1.339 0-2.4-.78-2.87-1.75M7 17v2h6v-2H7z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-sm font-semibold">{habit.metrics.currentStreak}</span>
+                      <span className="font-label text-label-md">{habit.metrics.currentStreak}</span>
                     </div>
                   )}
                 </div>
-              </div>
+              </Card>
             )
           })}
         </div>
@@ -248,8 +235,8 @@ export default function ActionView({ habits, onToggleCompletion, loading }: Acti
 
       {/* End of day summary */}
       {habitsWithMetrics.length > 0 && (
-        <div className="day-summary dashboard-card rounded-xl p-4 border" style={{ background: 'color-mix(in srgb, var(--color-primary) 8%, transparent)', borderColor: 'var(--color-border)' }}>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+        <div className="rounded-card border border-border bg-primary-light p-4">
+          <p className="font-body text-body-md text-text-secondary">
             {completedCount === habitsWithMetrics.length
               ? t('habits.action.allCompleted')
               : completedCount === 0

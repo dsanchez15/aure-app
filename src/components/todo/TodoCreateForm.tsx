@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, RefObject } from 'react'
-import { Button, Input } from '@/components/ui'
+import { Button, Card, Input } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 
 interface TodoCreateFormProps {
@@ -22,20 +22,25 @@ export default function TodoCreateForm({ inputRef, onAdd }: TodoCreateFormProps)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-[8px] bg-bg-surface-hover p-4">
-      <div className="flex items-center gap-3">
-        <Input
-          ref={inputRef}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={t('todos.addPlaceholder')}
-          className="flex-1 border-0"
-          aria-label={t('todos.addPlaceholder')}
-        />
-        <Button type="submit" size="lg" disabled={!title.trim()} className="whitespace-nowrap">
+    <Card padding="sm">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <span aria-hidden="true" className="material-symbols-outlined shrink-0 text-xl text-text-muted">
+            add_task
+          </span>
+          <Input
+            ref={inputRef}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t('todos.addPlaceholder')}
+            aria-label={t('todos.addPlaceholder')}
+            className="border-0 bg-transparent focus:ring-0"
+          />
+        </div>
+        <Button type="submit" disabled={!title.trim()} className="shrink-0 whitespace-nowrap">
           {t('todos.add')}
         </Button>
-      </div>
-    </form>
+      </form>
+    </Card>
   )
 }

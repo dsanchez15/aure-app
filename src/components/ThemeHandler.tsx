@@ -25,9 +25,9 @@ export default function ThemeHandler() {
                 root.classList.remove('dark');
             }
 
-            // Apply visual theme
-            const storedVisual = localStorage.getItem('app-visual-theme') || 'classic';
-            root.setAttribute('data-visual-theme', storedVisual);
+            // Tema visual único (Focus) desde Ola 5
+            localStorage.setItem('app-visual-theme', 'focus');
+            root.setAttribute('data-visual-theme', 'focus');
         };
 
         applyTheme();

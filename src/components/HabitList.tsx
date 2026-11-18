@@ -6,6 +6,7 @@ import HabitForm from './HabitForm'
 import { Habit, HabitFormData } from '@/types/habit'
 import { getTodayDateString, isCompletedOnDate } from '@/lib/habit-utils'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { Button, EmptyState, SectionHeader, Spinner } from '@/components/ui'
 
 export default function HabitList() {
   const { t } = useAppTranslation()
@@ -124,77 +125,62 @@ export default function HabitList() {
   ).length
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <Spinner size="lg" className="min-h-96" />
   }
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <p style={{ color: 'var(--color-danger)' }}>{error}</p>
-        <button
-          onClick={fetchHabits}
-          className="mt-4 px-4 py-2 rounded-[8px] hover:bg-primary/90"
-          style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}
->
-            {t('common.retry')}
-          </button>
-        </div>
-      )
+      <div className="py-12 text-center">
+        <p className="font-body text-body-md text-danger">{error}</p>
+        <Button className="mt-4" onClick={fetchHabits}>
+          {t('common.retry')}
+        </Button>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('habits.myHabits')}</h2>
-          <p className="mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            {habits.length === 0
-              ? t('habits.noHabitsRegistered')
-              : t('habits.habitSummary', { count: habits.length, plural: habits.length !== 1 ? 's' : '', completed: totalCompletionsToday })}
-          </p>
-        </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 px-4 py-2 rounded-[8px] hover:bg-primary/90 transition-colors font-medium"
-          style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}
-        >
-          {showForm ? (
-            <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span>{t('habits.cancelHabit')}</span>
-            </>
-          ) : (
-            <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span>{t('habits.newHabitBtn')}</span>
-            </>
-          )}
-        </button>
-      </div>
+      <SectionHeader
+        title={t('habits.myHabits')}
+        description={
+          habits.length === 0
+            ? t('habits.noHabitsRegistered')
+            : t('habits.habitSummary', { count: habits.length, plural: habits.length !== 1 ? 's' : '', completed: totalCompletionsToday })
+        }
+        actions={
+          <Button onClick={() => setShowForm(!showForm)}>
+            {showForm ? (
+              <>
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>{t('habits.cancelHabit')}</span>
+              </>
+            ) : (
+              <>
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>{t('habits.newHabitBtn')}</span>
+              </>
+            )}
+          </Button>
+        }
+      />
 
       {showForm && (
-        <div className="rounded-[8px] p-6 border" style={{ background: 'var(--color-bg-surface-hover)', borderColor: 'var(--color-border)' }}>
-          <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t('habits.createHabit')}</h3>
+        <div className="rounded-card border border-border bg-bg-surface-hover p-6">
+          <h3 className="mb-4 font-display text-title-md text-text-primary">{t('habits.createHabit')}</h3>
           <HabitForm onSubmit={handleCreateHabit} onCancel={() => setShowForm(false)} />
         </div>
       )}
 
       {habits.length === 0 ? (
-        <div className="text-center py-16 rounded-[8px] border border-dashed" style={{ background: 'var(--color-bg-surface-hover)', borderColor: 'var(--color-border)' }}>
-          <svg className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--color-text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-          </svg>
-          <p className="text-lg" style={{ color: 'var(--color-text-muted)' }}>{t('habits.stillNoHabits')}</p>
-          <p className="mt-1" style={{ color: 'var(--color-text-muted)', opacity: 0.7 }}>{t('habits.startHabitTip')}</p>
-        </div>
+        <EmptyState
+          title={t('habits.stillNoHabits')}
+          description={t('habits.startHabitTip')}
+        />
       ) : (
         <div className="grid gap-4">
           {habits.map((habit) => (

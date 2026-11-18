@@ -1,14 +1,9 @@
+import { Card } from '@/components/ui'
+
 export default function SettingCard({ children }: { children: React.ReactNode }) {
-    return (
-        <section
-            className="border rounded-[8px] p-6"
-            style={{
-                background: 'var(--color-bg-surface)',
-                borderColor: 'var(--color-border)',
-                boxShadow: 'var(--shadow-sm)',
-            }}
-        >
-            {children}
-        </section>
-    )
+  return (
+    <Card padding="lg" className="flex flex-col gap-5">
+      {children}
+    </Card>
+  )
 }

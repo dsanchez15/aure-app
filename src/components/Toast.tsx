@@ -17,26 +17,26 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
 
   const isSuccess = type === 'success';
 
-  const statusColor = isSuccess ? 'var(--color-success)' : 'var(--color-danger)';
-
   return (
-    <div className="fixed top-6 right-6 z-50 animate-slide-in">
+    <div className="fixed right-6 top-6 z-50 animate-slide-in">
       <div
-        className={`rf-toast ${isSuccess ? 'rf-toast-success' : 'rf-toast-error'} flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg border`}
-        style={{
-          background: 'var(--color-bg-surface)',
-          borderColor: statusColor,
-        }}
+        className={`flex items-center gap-3 rounded-card border bg-bg-surface px-5 py-3 shadow-lg ${
+          isSuccess ? 'border-success' : 'border-danger'
+        }`}
       >
         <span
-          className={`material-symbols-outlined text-lg ${isSuccess ? 'toast-icon-success' : 'toast-icon-error'}`}
-          style={{ color: statusColor }}
+          aria-hidden="true"
+          className={`material-symbols-outlined text-lg ${isSuccess ? 'text-success' : 'text-danger'}`}
         >
           {isSuccess ? 'check_circle' : 'error'}
         </span>
-        <span className="toast-text text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{message}</span>
-        <button onClick={onClose} className="ml-2" style={{ color: 'var(--color-text-secondary)' }}>
-          <span className="material-symbols-outlined text-sm">close</span>
+        <span className="font-label text-label-lg text-text-primary">{message}</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-2 text-text-secondary transition-state hover:text-text-primary"
+        >
+          <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
         </button>
       </div>
     </div>

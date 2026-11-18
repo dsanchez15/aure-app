@@ -1,25 +1,30 @@
 import { TextareaHTMLAttributes, useId } from 'react'
-import { FieldWrapper } from './Input'
-
-const baseTextareaClasses =
-  'w-full rounded-[8px] border border-border bg-bg-input text-text-primary placeholder:text-text-muted focus:outline-none focus:border-border-strong transition-colors disabled:opacity-50 px-4 py-2.5'
+import { Field } from './Field'
+import { fieldControlBase, fieldWidth } from './fieldStyles'
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
   error?: string
+  hint?: string
 }
 
-export function Textarea({ label, error, className = '', id, rows = 3, ...props }: TextareaProps) {
+export function Textarea({ label, error, hint, className = '', id, rows = 3, ...props }: TextareaProps) {
   const autoId = useId()
   const textareaId = id ?? autoId
   const field = (
-    <textarea id={textareaId} rows={rows} className={`${baseTextareaClasses} ${className}`} {...props} />
+    <textarea
+      id={textareaId}
+      rows={rows}
+      className={`${fieldControlBase} ${fieldWidth(className)} px-4 py-2.5 ${className}`}
+      aria-invalid={error ? true : undefined}
+      {...props}
+    />
   )
-  if (!label && !error) return field
+  if (!label && !error && !hint) return field
   return (
-    <FieldWrapper label={label} error={error} htmlFor={textareaId}>
+    <Field label={label} error={error} hint={hint} htmlFor={textareaId}>
       {field}
-    </FieldWrapper>
+    </Field>
   )
 }
 

@@ -2,17 +2,16 @@
 
 import { useState } from 'react'
 import SettingCard from '@/components/SettingCard'
-import { Button, Input } from '@/components/ui'
+import { Button, Input, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 
+/** Paleta de categorías sobre tokens; el color se guarda como valor del tema. */
 export const CATEGORY_COLORS = [
-  { name: 'Blue', value: '#3b82f6' },
-  { name: 'Green', value: '#22c55e' },
-  { name: 'Red', value: '#ef4444' },
-  { name: 'Amber', value: '#f59e0b' },
-  { name: 'Purple', value: '#a855f7' },
-  { name: 'Pink', value: '#ec4899' },
-  { name: 'Slate', value: '#64748b' },
+  { name: 'Blue', value: 'var(--color-info)' },
+  { name: 'Green', value: 'var(--color-success)' },
+  { name: 'Red', value: 'var(--color-danger)' },
+  { name: 'Amber', value: 'var(--color-warning)' },
+  { name: 'Purple', value: 'var(--color-primary)' },
 ]
 
 export interface SettingsCategory {
@@ -48,29 +47,31 @@ export default function CategoriesManagerCard({
 
   return (
     <SettingCard>
-      <div className="mb-6 flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary">label</span>
-        <h2 className="text-lg font-semibold">{t('settings.todoCategories')}</h2>
-      </div>
+      <SectionHeader title={t('settings.todoCategories')} icon="label" />
       <div className="space-y-4">
         {categories.length === 0 ? (
-          <p className="text-sm text-text-muted">{t('settings.noCategories')}</p>
+          <p className="font-body text-body-md text-text-muted">{t('settings.noCategories')}</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
               <div
                 key={cat.id}
-                className="flex items-center gap-2 rounded-[8px] border border-border bg-bg-surface px-3 py-2"
+                className="flex items-center gap-2 rounded-control border border-border bg-bg-surface px-3 py-2"
               >
-                <span className="h-3 w-3 rounded-full" style={{ backgroundColor: cat.color }} />
-                <span className="text-sm font-medium">{cat.name}</span>
+                <span
+                  aria-hidden="true"
+                  className="h-3 w-3 rounded-pill"
+                  style={{ backgroundColor: cat.color }}
+                />
+                <span className="font-label text-label-lg text-text-primary">{cat.name}</span>
                 {cat.name !== 'General' && (
                   <button
+                    type="button"
                     onClick={() => onDeleteCategory(cat.id)}
-                    className="settings-cat-delete-btn text-text-muted"
+                    className="settings-cat-delete-btn text-text-muted transition-state"
                     aria-label={`${t('common.delete')} ${cat.name}`}
                   >
-                    <span className="material-symbols-outlined text-sm">close</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-lg">close</span>
                   </button>
                 )}
               </div>
@@ -79,7 +80,7 @@ export default function CategoriesManagerCard({
         )}
 
         {showForm ? (
-          <form onSubmit={handleSubmit} className="space-y-3 rounded-[8px] bg-bg-surface-hover p-4">
+          <form onSubmit={handleSubmit} className="space-y-3 rounded-control bg-bg-surface-hover p-4">
             <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -93,13 +94,13 @@ export default function CategoriesManagerCard({
                   key={c.value}
                   type="button"
                   onClick={() => setNewColor(c.value)}
-                  className={`h-8 w-8 rounded-full border-2 transition-all ${newColor === c.value ? 'scale-110' : 'border-transparent'}`}
-                  style={{
-                    backgroundColor: c.value,
-                    ...(newColor === c.value ? { borderColor: 'var(--color-text-primary)' } : {}),
-                  }}
+                  className={`h-8 w-8 rounded-pill border-2 transition-state ${
+                    newColor === c.value ? 'scale-110 border-text-primary' : 'border-transparent'
+                  }`}
+                  style={{ backgroundColor: c.value }}
                   title={c.name}
                   aria-label={c.name}
+                  aria-pressed={newColor === c.value}
                 />
               ))}
             </div>
@@ -119,12 +120,9 @@ export default function CategoriesManagerCard({
             </div>
           </form>
         ) : (
-          <button
-            onClick={() => setShowForm(true)}
-            className="rounded-[8px] border border-primary/30 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
-          >
+          <Button variant="secondary" size="sm" onClick={() => setShowForm(true)}>
             {t('settings.newCategory')}
-          </button>
+          </Button>
         )}
       </div>
     </SettingCard>

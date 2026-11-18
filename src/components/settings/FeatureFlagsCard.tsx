@@ -33,7 +33,7 @@ export default function FeatureFlagsCard({ flags, onChange }: FeatureFlagsCardPr
         {FEATURE_ORDER.map((key) => (
           <div
             key={key}
-            className="settings-row-hover flex items-center justify-between rounded-[8px] p-3 transition-colors"
+            className="settings-row-hover flex items-center justify-between rounded-control p-3 transition-colors"
           >
             <div>
               <h3 className="font-medium">{t(`settings.features.${key}.title`)}</h3>

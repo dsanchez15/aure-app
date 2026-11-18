@@ -9,7 +9,7 @@ describe('Input', () => {
     render(<Input placeholder="Nombre" />)
     const input = screen.getByPlaceholderText('Nombre')
     expect(input.className).toContain('bg-bg-input')
-    expect(input.className).toContain('rounded-[8px]')
+    expect(input.className).toContain('rounded-control')
   })
 
   it('associates label with input via htmlFor', () => {

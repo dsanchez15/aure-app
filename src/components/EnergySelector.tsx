@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { Card, SectionHeader } from '@/components/ui'
 
 interface EnergySelectorProps {
   onLog?: (level: number) => void
@@ -13,11 +14,11 @@ export default function EnergySelector({ onLog }: EnergySelectorProps) {
   const [submitted, setSubmitted] = useState(false)
 
   const levels = [
-    { value: 1, label: t('habits.energy.veryLow'), emoji: '😫', color: 'bg-red-500' },
-    { value: 2, label: t('habits.energy.low'), emoji: '😕', color: 'bg-orange-500' },
-    { value: 3, label: t('habits.energy.medium'), emoji: '😐', color: 'bg-yellow-500' },
-    { value: 4, label: t('habits.energy.high'), emoji: '🙂', color: 'bg-lime-500' },
-    { value: 5, label: t('habits.energy.veryHigh'), emoji: '🤩', color: 'bg-green-500' },
+    { value: 1, label: t('habits.energy.veryLow'), emoji: '😫', color: 'bg-danger' },
+    { value: 2, label: t('habits.energy.low'), emoji: '😕', color: 'bg-warning' },
+    { value: 3, label: t('habits.energy.medium'), emoji: '😐', color: 'bg-warning/70' },
+    { value: 4, label: t('habits.energy.high'), emoji: '🙂', color: 'bg-success/70' },
+    { value: 5, label: t('habits.energy.veryHigh'), emoji: '🤩', color: 'bg-success' },
   ]
 
   const handleSelect = async (level: number) => {
@@ -39,35 +40,36 @@ export default function EnergySelector({ onLog }: EnergySelectorProps) {
 
   if (submitted) {
     return (
-      <div className="energy-selector dashboard-card rounded-xl p-4 border" style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-        <p className="text-sm text-center" style={{ color: 'var(--color-text-secondary)' }}>
+      <Card padding="md" className="energy-selector">
+        <p className="text-center font-body text-body-md text-text-secondary">
           {t('habits.energy.logged', { emoji: levels.find((l) => l.value === selected)?.emoji || '', label: levels.find((l) => l.value === selected)?.label || '' })}
         </p>
-      </div>
+      </Card>
     )
   }
 
   return (
-    <div className="energy-selector dashboard-card rounded-xl p-4 border" style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
-      <h4 className="text-sm font-semibold mb-3" style={{ color: 'var(--color-text-primary)' }}>{t('habits.energy.title')}</h4>
+    <Card padding="md" className="energy-selector">
+      <SectionHeader title={t('habits.energy.title')} className="mb-3" />
       <div className="flex justify-between gap-1">
         {levels.map((level) => (
           <button
             key={level.value}
+            type="button"
             onClick={() => handleSelect(level.value)}
-            className={`energy-btn flex-1 flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+            aria-pressed={selected === level.value}
+            className={`flex flex-1 flex-col items-center gap-1 rounded-control p-2 transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
               selected === level.value
-                ? 'energy-btn-selected ring-2 ring-primary'
-                : 'energy-btn-idle'
+                ? 'bg-bg-surface-hover ring-2 ring-primary'
+                : 'hover:bg-bg-surface-hover'
             }`}
-            style={selected === level.value ? { background: 'var(--color-bg-surface-hover)' } : {}}
           >
             <span className="text-2xl">{level.emoji}</span>
-            <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{level.label}</span>
-            <div className={`w-full h-1 rounded-full ${level.color} opacity-50`} />
+            <span className="font-label text-label-md text-text-muted">{level.label}</span>
+            <div className={`h-1 w-full rounded-pill ${level.color} opacity-50`} />
           </button>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

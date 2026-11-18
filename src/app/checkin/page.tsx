@@ -3,8 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import AppLayout from '@/components/AppLayout'
 import CheckInForm from '@/components/CheckInForm'
-import { WeeklyCheckIn } from '@/types/goal'
+import { PageHeader } from '@/components/layout'
+import { Badge, Card, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { fatigueBadgeVariant, fatigueLabel } from '@/components/progress/fatigue'
+import { WeeklyCheckIn } from '@/types/goal'
 
 export default function CheckInPage() {
   const { t, language } = useAppTranslation()
@@ -51,81 +54,57 @@ export default function CheckInPage() {
     await fetchCheckins()
   }
 
-  const fatigueLabel = (level: number) => {
-    const labels: Record<number, string> = {
-      1: t('progress.veryLowFatigue'),
-      2: t('progress.lowFatigue'),
-      3: t('progress.normalFatigue'),
-      4: t('progress.highFatigue'),
-      5: t('progress.veryHighFatigue'),
-    }
-    return labels[level] || t('progress.normalFatigue')
-  }
-
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <header>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-            {t('progress.weeklyCheckIn')}
-          </h1>
-          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {t('progress.subtitle')}
-          </p>
-        </header>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={t('progress.weeklyCheckIn')} description={t('progress.subtitle')} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <div className="dashboard-card rounded-[8px] p-6 border" style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }}>
-              <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
-                {t('progress.newCheckIn')}
-              </h3>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="flex flex-col gap-6 lg:col-span-2">
+            <Card padding="lg" className="flex flex-col gap-4">
+              <SectionHeader title={t('progress.newCheckIn')} icon="fact_check" />
               <CheckInForm onSubmit={handleSubmit} />
-            </div>
+            </Card>
 
             {checkins.length > 0 && (
-              <div className="mt-6 dashboard-card rounded-[8px] p-6 border" style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }}>
-                <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
-                  {t('progress.historyLabel')}
-                </h3>
-                <div className="space-y-4">
-                  {checkins.map(checkin => (
-                    <div key={checkin.id} className="p-4 rounded-[8px] border" style={{ borderColor: 'var(--color-border)' }}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                          {t('progress.weekOfDate', { date: new Date(checkin.weekStartDate).toLocaleDateString(language === 'es' ? 'es' : 'en') })}
+              <Card padding="lg" className="flex flex-col gap-4">
+                <SectionHeader title={t('progress.historyLabel')} icon="history" />
+                <div className="flex flex-col gap-3">
+                  {checkins.map((checkin) => (
+                    <div key={checkin.id} className="rounded-control border border-border p-4">
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-label text-label-lg text-text-primary">
+                          {t('progress.weekOfDate', {
+                            date: new Date(checkin.weekStartDate).toLocaleDateString(
+                              language === 'es' ? 'es' : 'en'
+                            ),
+                          })}
                         </span>
-                        <span
-                          className="px-2 py-0.5 rounded-full text-xs font-medium"
-                          style={{
-                            background: checkin.fatigueLevel >= 4 ? 'rgba(239,68,68,0.1)' :
-                              checkin.fatigueLevel <= 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
-                            color: checkin.fatigueLevel >= 4 ? '#ef4444' :
-                              checkin.fatigueLevel <= 2 ? '#10b981' : '#f59e0b',
-                          }}
-                        >
-                          {t('progress.fatigue')}: {fatigueLabel(checkin.fatigueLevel)}
-                        </span>
+                        <Badge variant={fatigueBadgeVariant(checkin.fatigueLevel)}>
+                          {t('progress.fatigue')}: {fatigueLabel(checkin.fatigueLevel, t)}
+                        </Badge>
                       </div>
                       {checkin.completedHours && (
-                        <p className="text-sm mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                        <p className="mb-1 font-body text-body-md text-text-muted">
                           {t('progress.hoursCompleted')}: {checkin.completedHours}
                         </p>
                       )}
                       {checkin.deviations && (
-                        <p className="text-sm mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                          <span className="font-medium">{t('progress.deviations')}:</span> {checkin.deviations}
+                        <p className="mb-1 font-body text-body-md text-text-secondary">
+                          <span className="font-label text-text-primary">{t('progress.deviations')}:</span>{' '}
+                          {checkin.deviations}
                         </p>
                       )}
                       {checkin.adjustmentNotes && (
-                        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                          <span className="font-medium">{t('progress.adjustments')}:</span> {checkin.adjustmentNotes}
+                        <p className="font-body text-body-md text-text-secondary">
+                          <span className="font-label text-text-primary">{t('progress.adjustments')}:</span>{' '}
+                          {checkin.adjustmentNotes}
                         </p>
                       )}
                     </div>
                   ))}
                 </div>
-              </div>
+              </Card>
             )}
           </div>
         </div>

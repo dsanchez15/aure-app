@@ -54,8 +54,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'var(--color-bg-overlay)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-bg-overlay p-4"
       onClick={handleOverlayClick}
     >
       <div
@@ -63,22 +62,22 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`w-full ${maxWidthClasses[maxWidth]} max-h-[90vh] overflow-y-auto rounded-[8px] border border-border bg-bg-surface shadow-lg`}
+        className={`w-full ${maxWidthClasses[maxWidth]} max-h-full overflow-y-auto rounded-card border border-border bg-bg-surface shadow-lg`}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 id={titleId} className="text-lg font-bold text-text-primary">
+        <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
+          <h2 id={titleId} className="font-display text-title-md text-text-primary">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="text-text-muted transition-colors hover:text-text-secondary"
+            className="-mr-2 rounded-control p-1 text-text-muted transition-state hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            <span className="material-symbols-outlined">close</span>
+            <span aria-hidden="true" className="material-symbols-outlined">close</span>
           </button>
         </div>
-        <div className="px-5 py-4">{children}</div>
+        <div className="px-5 py-4 font-body text-body-md">{children}</div>
         {footer && <div className="flex justify-end gap-2 border-t border-border px-5 py-4">{footer}</div>}
       </div>
     </div>

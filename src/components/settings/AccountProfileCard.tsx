@@ -38,7 +38,7 @@ export default function AccountProfileCard({ user, onUserChange }: AccountProfil
             }
           />
           <button className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-            <span className="material-symbols-outlined text-white">photo_camera</span>
+            <span className="material-symbols-outlined text-text-inverse">photo_camera</span>
           </button>
         </div>
         <div className="grid w-full flex-1 grid-cols-1 gap-4 md:grid-cols-2">

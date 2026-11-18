@@ -18,7 +18,7 @@ function OptionChip({ active, onClick, children }: { active: boolean; onClick: (
   return (
     <button
       onClick={onClick}
-      className={`rounded-[6px] border px-3 py-1.5 text-xs ${
+      className={`rounded-sm border px-3 py-1.5 text-xs ${
         active ? 'border-primary bg-primary/10 text-primary' : 'border-border'
       }`}
     >
@@ -138,7 +138,7 @@ export default function SessionConfigView({
               <button
                 key={opt.key}
                 onClick={() => set('questionType', opt.key)}
-                className={`flex-1 rounded-[8px] border px-3 py-2 text-sm transition-all ${
+                className={`flex-1 rounded-control border px-3 py-2 text-sm transition-all ${
                   config.questionType === opt.key ? 'border-primary bg-primary/10 text-primary' : 'border-border'
                 }`}
               >
@@ -149,7 +149,7 @@ export default function SessionConfigView({
         </div>
 
         {/* Summary */}
-        <div className="rounded-[8px] bg-bg-surface-hover p-3 text-sm">
+        <div className="rounded-control bg-bg-surface-hover p-3 text-sm">
           <p className="mb-1 font-medium">{t('study.review.summaryLabel')}</p>
           <p className="text-text-muted">
             {t('study.review.summaryText', {

@@ -19,7 +19,7 @@ export default function StudySectionCard({ settings, onChange }: StudySectionCar
         <h2 className="text-lg font-semibold">{t('settings.studySection')}</h2>
       </div>
       <div className="space-y-6">
-        <div className="settings-row-hover flex items-center justify-between rounded-[8px] p-3 transition-colors">
+        <div className="settings-row-hover flex items-center justify-between rounded-control p-3 transition-colors">
           <div>
             <h3 className="font-medium">{t('settings.maxQuestionsPerReview')}</h3>
             <p className="text-xs text-text-muted">{t('settings.maxQuestionsPerReviewDesc')}</p>

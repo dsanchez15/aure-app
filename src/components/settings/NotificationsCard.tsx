@@ -23,7 +23,7 @@ export default function NotificationsCard() {
       </div>
       <div className="space-y-4">
         {prefs.map((pref, i) => (
-          <div key={pref.title} className="settings-row-hover flex items-center justify-between rounded-[8px] p-3 transition-colors">
+          <div key={pref.title} className="settings-row-hover flex items-center justify-between rounded-control p-3 transition-colors">
             <div>
               <h3 className="font-medium">{pref.title}</h3>
               <p className="text-xs text-text-muted">{pref.desc}</p>

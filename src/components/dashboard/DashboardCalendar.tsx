@@ -1,6 +1,6 @@
 'use client'
 
-import { Card } from '@/components/ui'
+import { Card, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { MODULE_COLORS, type DayData, type WorkloadDay } from '@/types/dashboard'
 
@@ -67,10 +67,9 @@ export default function DashboardCalendar({
         <button
           key={day}
           onClick={() => onSelectDate(new Date(year, month - 1, day))}
-          className={`relative h-20 overflow-hidden rounded-[8px] border p-1.5 text-left transition-all sm:h-24 sm:p-2 ${
-            isSelected ? 'border-primary/40 bg-primary/5 shadow-sm' : ''
+          className={`relative h-20 overflow-hidden rounded-control border p-1.5 text-left transition-state sm:h-24 sm:p-2 ${
+            isSelected ? 'border-primary/40 bg-primary/5 shadow-sm' : 'border-border'
           } ${isToday ? 'ring-2 ring-primary/20' : ''}`}
-          style={isSelected ? undefined : { borderColor: 'var(--color-border)' }}
         >
           {intensity > 0 && (
             <div
@@ -79,8 +78,9 @@ export default function DashboardCalendar({
             />
           )}
           <span
-            className={`relative text-sm font-medium ${isToday ? 'text-primary' : ''}`}
-            style={isToday ? undefined : { color: 'var(--color-text-secondary)' }}
+            className={`relative font-label text-label-md ${
+              isToday ? 'text-primary' : 'text-text-secondary'
+            }`}
           >
             {day}
           </span>
@@ -91,17 +91,19 @@ export default function DashboardCalendar({
                 .map(([mod, count]) => (
                   <span
                     key={mod}
-                    className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-medium text-white"
+                    className="inline-flex items-center gap-0.5 rounded-sm px-1 py-0.5 font-label text-label-sm text-text-inverse"
                     style={{ backgroundColor: MODULE_COLORS[mod] }}
                   >
                     {count}
                   </span>
                 ))}
-              {dayData.count > 4 && <span className="text-[10px] text-text-muted">+{dayData.count - 4}</span>}
+              {dayData.count > 4 && (
+                <span className="font-mono text-label-sm text-text-muted">+{dayData.count - 4}</span>
+              )}
             </div>
           )}
           {wl?.overloaded && (
-            <div className="absolute right-1 top-1 h-2 w-2 rounded-full bg-danger" title="Overloaded day" />
+            <div className="absolute right-1 top-1 h-2 w-2 rounded-pill bg-danger" title="Overloaded day" />
           )}
         </button>
       )
@@ -110,24 +112,29 @@ export default function DashboardCalendar({
   }
 
   return (
-    <section>
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-secondary">
-        {t('dashboard.planning')}
-      </h3>
-      <Card className="dashboard-card">
+    <section className="flex flex-col gap-3">
+      <SectionHeader title={t('dashboard.planning')} />
+      <Card>
         {/* Legend */}
         <div className="mb-4 flex flex-wrap gap-3">
           {Object.entries(MODULE_COLORS).map(([mod, color]) => (
             <div key={mod} className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-xs capitalize text-text-muted">{mod}</span>
+              <span
+                aria-hidden="true"
+                className="h-3 w-3 rounded-pill"
+                style={{ backgroundColor: color }}
+              />
+              <span className="font-label text-label-md capitalize text-text-muted">{mod}</span>
             </div>
           ))}
         </div>
         {/* Day headers */}
         <div className="mb-2 grid grid-cols-7 gap-2">
           {dayHeaders.map((d) => (
-            <div key={d} className="text-center text-xs font-medium uppercase tracking-wider text-text-muted">
+            <div
+              key={d}
+              className="text-center font-label text-label-md uppercase tracking-wider text-text-muted"
+            >
               {d}
             </div>
           ))}

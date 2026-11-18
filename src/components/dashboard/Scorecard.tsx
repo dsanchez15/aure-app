@@ -1,6 +1,6 @@
 'use client'
 
-import { Card } from '@/components/ui'
+import { Card, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { DashboardMetrics } from '@/types/dashboard'
 
@@ -21,23 +21,19 @@ export default function Scorecard({ metrics }: ScorecardProps) {
     : []
 
   return (
-    <Card padding="lg" className="dashboard-card">
-      <h4 className="card-title mb-4 font-semibold text-text-primary">{t('dashboard.scorecard')}</h4>
+    <Card padding="lg" className="flex flex-col gap-4">
+      <SectionHeader title={t('dashboard.scorecard')} />
       {metrics ? (
-        <div className="space-y-4">
-          {[0, 2].map((row) => (
-            <div key={row} className="flex items-center gap-4">
-              {cells.slice(row, row + 2).map((cell) => (
-                <div key={cell.label} className="flex-1 rounded-[8px] bg-bg-input p-3 text-center">
-                  <p className={`text-2xl font-bold ${cell.valueClass}`}>{cell.value}</p>
-                  <p className="mt-1 text-[10px] uppercase text-text-muted">{cell.label}</p>
-                </div>
-              ))}
+        <div className="grid grid-cols-2 gap-3">
+          {cells.map((cell) => (
+            <div key={cell.label} className="rounded-control bg-bg-surface-hover px-3 py-2.5">
+              <p className={`font-mono text-headline-md tabular-nums ${cell.valueClass}`}>{cell.value}</p>
+              <p className="mt-0.5 font-label text-label-sm uppercase text-text-muted">{cell.label}</p>
             </div>
           ))}
         </div>
       ) : (
-        <p className="py-4 text-center text-sm text-text-muted">{t('dashboard.loadingMetrics')}</p>
+        <p className="py-4 text-center font-body text-body-md text-text-muted">{t('dashboard.loadingMetrics')}</p>
       )}
     </Card>
   )

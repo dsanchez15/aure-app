@@ -4,7 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import AppLayout from '@/components/AppLayout'
-import { Spinner } from '@/components/ui'
+import { PageHeader } from '@/components/layout'
+import { SegmentedControl, Spinner } from '@/components/ui'
 import PriorityBadge from '@/components/PriorityBadge'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useGoal } from '@/hooks/useGoal'
@@ -12,6 +13,9 @@ import GoalProgressCard from '@/components/goals/GoalProgressCard'
 import GoalMilestonesCard from '@/components/goals/GoalMilestonesCard'
 import GoalEditForm from '@/components/goals/GoalEditForm'
 import GoalStatusSidebar from '@/components/goals/GoalStatusSidebar'
+
+const backLink =
+  'inline-flex items-center gap-2 rounded-control border border-border bg-bg-surface px-4 py-2 font-label text-label-lg text-text-primary transition-state hover:bg-bg-surface-hover'
 
 export default function GoalDetailPage() {
   const { t, language: lang, setLanguage } = useAppTranslation()
@@ -49,7 +53,7 @@ export default function GoalDetailPage() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="flex justify-center py-16">
+        <div className="flex min-h-96 items-center justify-center">
           <Spinner size="lg" />
         </div>
       </AppLayout>
@@ -59,9 +63,9 @@ export default function GoalDetailPage() {
   if (!goal || !permissions) {
     return (
       <AppLayout>
-        <div className="py-12 text-center">
-          <p className="mb-2 text-lg text-text-primary">{t('goals.notFound')}</p>
-          <Link href="/goals" className="text-primary hover:underline">
+        <div className="flex flex-col items-center gap-3 py-12 text-center">
+          <p className="font-display text-title-lg text-text-primary">{t('goals.notFound')}</p>
+          <Link href="/goals" className={backLink}>
             {t('common.back')}
           </Link>
         </div>
@@ -71,45 +75,45 @@ export default function GoalDetailPage() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        {/* Language toggle */}
-        <div className="flex justify-end gap-2">
-          {(['es', 'en'] as const).map((code) => (
-            <button
-              key={code}
-              onClick={() => setLanguage(code)}
-              className={`rounded-[8px] px-3 py-1 text-xs font-medium transition-colors ${
-                lang === code ? 'bg-primary text-white' : 'border border-border text-text-secondary'
-              }`}
-            >
-              {code.toUpperCase()}
-            </button>
-          ))}
+      <div className="flex flex-col gap-6">
+        <div className="flex justify-end">
+          <SegmentedControl<'es' | 'en'>
+            ariaLabel={t('settings.language')}
+            size="sm"
+            options={[
+              { value: 'es', label: 'ES' },
+              { value: 'en', label: 'EN' },
+            ]}
+            value={lang}
+            onChange={setLanguage}
+          />
         </div>
 
-        <header className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/goals" className="rounded-[8px] p-2 text-text-muted hover:bg-primary/10">
-              ←
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-text-primary">
-                {isEditing ? t('goals.actions.editGoal') : goal.title}
-              </h1>
-              {!isEditing && goal.description && (
-                <p className="mt-1 text-text-secondary">{goal.description}</p>
-              )}
-            </div>
-          </div>
-          {!isEditing && <PriorityBadge priority={goal.priority} />}
-        </header>
+        <PageHeader
+          eyebrow={isEditing ? undefined : t('goals.progress.title')}
+          title={isEditing ? t('goals.actions.editGoal') : goal.title}
+          description={!isEditing && goal.description ? goal.description : undefined}
+          actions={
+            <>
+              <Link href="/goals" className={backLink}>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  arrow_back
+                </span>
+                {t('goals.title')}
+              </Link>
+              {!isEditing && <PriorityBadge priority={goal.priority} />}
+            </>
+          }
+        />
 
         {error && (
-          <div className="rounded-[8px] bg-danger/10 p-4 text-danger">{error}</div>
+          <div role="alert" className="rounded-card border border-danger/30 bg-danger/10 p-4">
+            <p className="font-label text-label-md text-danger">{error}</p>
+          </div>
         )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
+          <div className="flex flex-col gap-6 lg:col-span-2">
             {!isEditing ? (
               <>
                 <GoalProgressCard goal={goal} />
@@ -133,7 +137,7 @@ export default function GoalDetailPage() {
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="flex flex-col gap-6">
             <GoalStatusSidebar
               goal={goal}
               permissions={permissions}

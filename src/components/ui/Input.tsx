@@ -1,62 +1,59 @@
 import { InputHTMLAttributes, forwardRef, useId } from 'react'
+import { Field, type FieldProps } from './Field'
+import { fieldControlBase, fieldSizeClasses, fieldWidth, type FieldSize } from './fieldStyles'
 
-const baseFieldClasses =
-  'w-full rounded-[8px] border border-border bg-bg-input text-text-primary placeholder:text-text-muted focus:outline-none focus:border-border-strong transition-colors disabled:opacity-50'
-
-const sizeClasses = {
-  sm: 'px-3 py-2 text-sm',
-  md: 'px-4 py-2.5',
-} as const
-
-export type FieldSize = keyof typeof sizeClasses
-
-export interface FieldWrapperProps {
-  label?: string
-  error?: string
-  htmlFor?: string
-  children: React.ReactNode
-}
-
-export function FieldWrapper({ label, error, htmlFor, children }: FieldWrapperProps) {
-  return (
-    <div>
-      {label && (
-        <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-text-secondary">
-          {label}
-        </label>
-      )}
-      {children}
-      {error && <p className="mt-1 text-sm text-danger">{error}</p>}
-    </div>
-  )
-}
+export { FieldWrapper, type FieldWrapperProps } from './Field'
+export { fieldControlBase, fieldSizeClasses, fieldWidth, type FieldSize }
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
+  hint?: string
   fieldSize?: FieldSize
+  /** Icono de Material Symbols a la izquierda del valor. */
+  leadingIcon?: string
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, fieldSize = 'md', className = '', id, ...props },
+  { label, error, hint, fieldSize = 'md', leadingIcon, className = '', id, ...props },
   ref
 ) {
   const autoId = useId()
   const inputId = id ?? autoId
-  const field = (
+  const classes = `${fieldControlBase} ${fieldWidth(className)} ${fieldSizeClasses[fieldSize]} ${leadingIcon ? 'pl-10' : ''} ${className}`
+
+  const control = (
     <input
       ref={ref}
       id={inputId}
-      className={`${baseFieldClasses} ${sizeClasses[fieldSize]} ${className}`}
+      className={classes}
+      aria-invalid={error ? true : undefined}
       {...props}
     />
   )
-  if (!label && !error) return field
+
+  const field = leadingIcon ? (
+    <div className="relative flex items-center">
+      <span
+        aria-hidden="true"
+        className="material-symbols-outlined pointer-events-none absolute left-3 text-lg text-text-muted"
+      >
+        {leadingIcon}
+      </span>
+      {control}
+    </div>
+  ) : (
+    control
+  )
+
+  if (!label && !error && !hint) return field
   return (
-    <FieldWrapper label={label} error={error} htmlFor={inputId}>
+    <Field label={label} error={error} hint={hint} htmlFor={inputId}>
       {field}
-    </FieldWrapper>
+    </Field>
   )
 })
 
 export default Input
+
+export type { FieldProps }

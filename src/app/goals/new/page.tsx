@@ -4,8 +4,13 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import AppLayout from '@/components/AppLayout'
+import { PageHeader } from '@/components/layout'
+import { Button, Card, Input, SectionHeader, Select, Textarea } from '@/components/ui'
 import { Phase } from '@/types/goal'
 import { useAppTranslation } from '@/components/LanguageProvider'
+
+const secondaryLink =
+  'flex flex-1 items-center justify-center rounded-control border border-border bg-bg-surface px-4 py-2 font-label text-label-lg text-text-primary transition-state hover:bg-bg-surface-hover'
 
 export default function NewGoalPage() {
   const { t } = useAppTranslation()
@@ -26,9 +31,12 @@ export default function NewGoalPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetch('/api/phases').then(res => res.ok && res.json()).then(data => {
-      if (data?.phases) setPhases(data.phases)
-    }).catch(() => {})
+    fetch('/api/phases')
+      .then((res) => res.ok && res.json())
+      .then((data) => {
+        if (data?.phases) setPhases(data.phases)
+      })
+      .catch(() => {})
   }, [])
 
   const addMilestone = () => {
@@ -40,21 +48,29 @@ export default function NewGoalPage() {
     updated[index][field] = value
     setMilestones(updated)
     if (milestoneErrors[index]) {
-      setMilestoneErrors(prev => { const n = { ...prev }; delete n[index]; return n; })
+      setMilestoneErrors((prev) => {
+        const next = { ...prev }
+        delete next[index]
+        return next
+      })
     }
   }
 
   const removeMilestone = (index: number) => {
     setMilestones(milestones.filter((_, i) => i !== index))
     if (milestoneErrors[index]) {
-      setMilestoneErrors(prev => { const n = { ...prev }; delete n[index]; return n; })
+      setMilestoneErrors((prev) => {
+        const next = { ...prev }
+        delete next[index]
+        return next
+      })
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title.trim()) {
-      setError(t('goals.titleLabel').replace(' *', '') + ' ' + t('common.required').toLowerCase())
+      setError(`${t('goals.titleLabel').replace(' *', '')} ${t('common.required').toLowerCase()}`)
       return
     }
 
@@ -85,7 +101,7 @@ export default function NewGoalPage() {
           deadline: form.deadline || null,
           estimatedHours: form.estimatedHours ? parseFloat(form.estimatedHours) : null,
           phaseId: form.phaseId || null,
-          milestones: milestones.filter(m => m.title.trim()),
+          milestones: milestones.filter((m) => m.title.trim()),
         }),
       })
 
@@ -110,212 +126,154 @@ export default function NewGoalPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
-        <header>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-            {t('goals.newGoal')}
-          </h1>
-          <p className="mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {t('goals.newPageSubtitle')}
-          </p>
-        </header>
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        <PageHeader title={t('goals.newGoal')} description={t('goals.newPageSubtitle')} />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {error && (
-            <div className="p-4 rounded-[8px] bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400">
-              {error}
+            <div role="alert" className="rounded-card border border-danger/30 bg-danger/10 p-4">
+              <p className="font-label text-label-md text-danger">{error}</p>
             </div>
           )}
 
-          <div className="dashboard-card rounded-[8px] p-6 border" style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                  {t('goals.titleLabel')}
-                </label>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  placeholder={t('goals.titlePlaceholder')}
-                  className="w-full px-4 py-2 rounded-[8px] border"
-                  style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                  {t('goals.descriptionLabel')}
-                </label>
-                <textarea
-                  value={form.description}
-                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  placeholder={t('goals.descriptionPlaceholder')}
-                  rows={3}
-                  className="w-full px-4 py-2 rounded-[8px] border resize-none"
-                  style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                    {t('goals.categoryLabel')}
-                  </label>
-                  <select
-                    value={form.category}
-                    onChange={e => setForm(f => ({ ...f, category: e.target.value as 'PROFESIONAL' | 'PERSONAL' }))}
-                    className="w-full px-4 py-2 rounded-[8px] border"
-                    style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                  >
-                    <option value="PERSONAL">{t('goals.categoryPersonal')}</option>
-                    <option value="PROFESIONAL">{t('goals.categoryProfessional')}</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                    {t('goals.priorityLabel')}
-                  </label>
-                  <select
-                    value={form.priority}
-                    onChange={e => setForm(f => ({ ...f, priority: e.target.value as 'ALTA' | 'MEDIA' | 'BAJA' }))}
-                    className="w-full px-4 py-2 rounded-[8px] border"
-                    style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                  >
-                    <option value="BAJA">{priorityLabel('BAJA')}</option>
-                    <option value="MEDIA">{priorityLabel('MEDIA')}</option>
-                    <option value="ALTA">{priorityLabel('ALTA')}</option>
-                  </select>
-                </div>
-              </div>
-
-              {phases.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                    {t('goals.phaseLabel')}
-                  </label>
-                  <select
-                    value={form.phaseId}
-                    onChange={e => setForm(f => ({ ...f, phaseId: e.target.value }))}
-                    className="w-full px-4 py-2 rounded-[8px] border"
-                    style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                  >
-                    <option value="">{t('goals.noPhase')}</option>
-                    {phases.sort((a, b) => a.number - b.number).map(p => (
-                      <option key={p.id} value={p.id}>Phase {p.number}: {p.title}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                    {t('goals.deadlineLabel')}
-                  </label>
-                  <input
-                    type="date"
-                    value={form.deadline}
-                    onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))}
-                    className="w-full px-4 py-2 rounded-[8px] border"
-                    style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-                    {t('goals.estimatedHoursLabel')}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    value={form.estimatedHours}
-                    onChange={e => setForm(f => ({ ...f, estimatedHours: e.target.value }))}
-                    placeholder="40"
-                    className="w-full px-4 py-2 rounded-[8px] border"
-                    style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-card rounded-[8px] p-6 border" style={{ background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                {t('goals.milestones')}
-              </h3>
-              <button
-                type="button"
-                onClick={addMilestone}
-                className="text-sm px-3 py-1 rounded-[8px] border border-dashed"
-                style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
+          <Card padding="lg" className="flex flex-col gap-4">
+            <SectionHeader title={t('goals.titleLabel')} icon="flag" />
+            <Input
+              label={t('goals.titleLabel')}
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              placeholder={t('goals.titlePlaceholder')}
+              required
+            />
+            <Textarea
+              label={t('goals.descriptionLabel')}
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              placeholder={t('goals.descriptionPlaceholder')}
+              rows={3}
+              className="resize-none"
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Select
+                label={t('goals.categoryLabel')}
+                value={form.category}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, category: e.target.value as 'PROFESIONAL' | 'PERSONAL' }))
+                }
               >
-                {t('goals.addMilestone')}
-              </button>
+                <option value="PERSONAL">{t('goals.categoryPersonal')}</option>
+                <option value="PROFESIONAL">{t('goals.categoryProfessional')}</option>
+              </Select>
+              <Select
+                label={t('goals.priorityLabel')}
+                value={form.priority}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, priority: e.target.value as 'ALTA' | 'MEDIA' | 'BAJA' }))
+                }
+              >
+                <option value="BAJA">{priorityLabel('BAJA')}</option>
+                <option value="MEDIA">{priorityLabel('MEDIA')}</option>
+                <option value="ALTA">{priorityLabel('ALTA')}</option>
+              </Select>
             </div>
+
+            {phases.length > 0 && (
+              <Select
+                label={t('goals.phaseLabel')}
+                value={form.phaseId}
+                onChange={(e) => setForm((f) => ({ ...f, phaseId: e.target.value }))}
+              >
+                <option value="">{t('goals.noPhase')}</option>
+                {phases
+                  .sort((a, b) => a.number - b.number)
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {t('progress.phase')} {p.number}: {p.title}
+                    </option>
+                  ))}
+              </Select>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                label={t('goals.deadlineLabel')}
+                type="date"
+                value={form.deadline}
+                onChange={(e) => setForm((f) => ({ ...f, deadline: e.target.value }))}
+              />
+              <Input
+                label={t('goals.estimatedHoursLabel')}
+                type="number"
+                step="0.5"
+                min="0"
+                value={form.estimatedHours}
+                onChange={(e) => setForm((f) => ({ ...f, estimatedHours: e.target.value }))}
+                placeholder="40"
+              />
+            </div>
+          </Card>
+
+          <Card padding="lg" className="flex flex-col gap-4">
+            <SectionHeader
+              title={t('goals.milestones')}
+              icon="checklist"
+              actions={
+                <Button type="button" variant="secondary" size="sm" onClick={addMilestone}>
+                  {t('goals.addMilestone')}
+                </Button>
+              }
+            />
 
             {milestones.length === 0 ? (
-              <p className="text-sm text-center py-4" style={{ color: 'var(--color-text-muted)' }}>
+              <p className="py-4 text-center font-body text-body-md text-text-muted">
                 {t('goals.noMilestones')}
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-4">
                 {milestones.map((m, i) => (
-                  <div key={i} className="flex gap-3 items-start">
-                    <div className="flex-1 space-y-2">
-                      <input
-                        type="text"
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <Input
+                        fieldSize="sm"
                         value={m.title}
-                        onChange={e => updateMilestone(i, 'title', e.target.value)}
+                        onChange={(e) => updateMilestone(i, 'title', e.target.value)}
                         placeholder={t('goals.milestoneTitlePlaceholder')}
-                        className="w-full px-3 py-2 rounded-[8px] border text-sm"
-                        style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
+                        aria-label={t('goals.milestoneTitlePlaceholder')}
                       />
-                      <div>
-                        <input
-                          type="date"
-                          value={m.targetDate}
-                          onChange={e => updateMilestone(i, 'targetDate', e.target.value)}
-                          className={`w-full px-3 py-2 rounded-[8px] border text-sm ${milestoneErrors[i] ? 'border-red-500' : ''}`}
-                          style={{ background: 'var(--color-bg-input)', borderColor: milestoneErrors[i] ? '#ef4444' : 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                        />
-                        {milestoneErrors[i] && (
-                          <p className="text-xs text-red-500 mt-1">{milestoneErrors[i]}</p>
-                        )}
-                      </div>
+                      <Input
+                        fieldSize="sm"
+                        type="date"
+                        value={m.targetDate}
+                        onChange={(e) => updateMilestone(i, 'targetDate', e.target.value)}
+                        aria-label={t('goals.deadlineLabel')}
+                        error={milestoneErrors[i]}
+                      />
                     </div>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="mt-1 px-2 text-text-muted hover:bg-danger/10 hover:text-danger"
+                      aria-label={t('common.delete')}
                       onClick={() => removeMilestone(i)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-[8px]"
                     >
-                      ✕
-                    </button>
+                      <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                        delete
+                      </span>
+                    </Button>
                   </div>
                 ))}
               </div>
             )}
-          </div>
+          </Card>
 
           <div className="flex gap-3">
-            <Link
-              href="/goals"
-              className="flex-1 px-4 py-2 rounded-[8px] border font-medium text-center"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
-            >
+            <Link href="/goals" className={secondaryLink}>
               {t('common.cancel')}
             </Link>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-primary text-white rounded-[8px] font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
+            <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? t('common.loading') : t('common.create')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
