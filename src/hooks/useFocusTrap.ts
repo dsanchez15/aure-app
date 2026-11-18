@@ -11,9 +11,16 @@ export function useFocusTrap(
     if (!isActive || !ref.current) return;
     const container = ref.current;
 
-    const focusableElements = container.querySelectorAll<HTMLElement>(
-      'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
-    );
+    // Excluye controles ocultos (p. ej. el botón de escritorio dentro del overlay móvil):
+    // querySelectorAll los incluye aunque no sean enfocables.
+    const focusableElements = Array.from(
+      container.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), details, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => {
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    });
     
     if (focusableElements.length === 0) return;
 

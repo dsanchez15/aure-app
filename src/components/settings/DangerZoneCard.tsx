@@ -17,7 +17,7 @@ export default function DangerZoneCard() {
           <h3 className="font-medium text-text-primary">{t('settings.resetAllData')}</h3>
           <p className="text-xs text-text-muted">{t('settings.resetAllDataDesc')}</p>
         </div>
-        <button className="rounded-[8px] border border-danger px-4 py-2 font-medium text-danger transition-all hover:bg-danger hover:text-white">
+        <button className="rounded-control border border-danger px-4 py-2 font-medium text-danger transition-all hover:bg-danger hover:text-text-inverse">
           {t('settings.resetAccount')}
         </button>
       </div>

@@ -5,6 +5,7 @@ import HabitCard from './HabitCard'
 import HabitForm from './HabitForm'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { Habit, Category, Objective, HabitFormData, HabitState } from '@/types/habit'
+import { Button, Card, EmptyState, SegmentedControl, SectionHeader, Spinner } from '@/components/ui'
 
 interface PlanningViewProps {
   habits: Habit[]
@@ -42,51 +43,37 @@ export default function PlanningView({
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <Spinner size="lg" className="min-h-96" />
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('habits.planning.title')}</h2>
-          <p className="mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            {t('habits.planning.habitCount', { count: habits.length })}
-          </p>
-        </div>
-        <button
-          onClick={() => { setShowForm(!showForm); setEditingId(null) }}
-          className="flex items-center gap-2 px-4 py-2 btn-neon bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
-        >
-          {showForm ? t('habits.planning.cancel') : t('habits.planning.newHabit')}
-        </button>
-      </div>
+      <SectionHeader
+        title={t('habits.planning.title')}
+        description={t('habits.planning.habitCount', { count: habits.length })}
+        actions={
+          <Button onClick={() => { setShowForm(!showForm); setEditingId(null) }}>
+            {showForm ? t('habits.planning.cancel') : t('habits.planning.newHabit')}
+          </Button>
+        }
+      />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2">
-        {(['All', 'Active', 'Paused', 'Archived'] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`habit-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              filter === f
-                ? 'habit-filter-btn-active bg-primary text-white'
-                : 'planning-filter-inactive'
-            }`}
-            style={filter !== f ? { background: 'var(--color-bg-input)', color: 'var(--color-text-secondary)' } : undefined}
-          >
-            {f === 'All' ? t('habits.planning.filters.all') : f === 'Active' ? t('habits.planning.filters.active') : f === 'Paused' ? t('habits.planning.filters.paused') : t('habits.planning.filters.archived')}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<HabitState | 'All'>
+        ariaLabel={t('common.filter')}
+        options={[
+          { value: 'All', label: t('habits.planning.filters.all') },
+          { value: 'Active', label: t('habits.planning.filters.active') },
+          { value: 'Paused', label: t('habits.planning.filters.paused') },
+          { value: 'Archived', label: t('habits.planning.filters.archived') },
+        ]}
+        value={filter}
+        onChange={setFilter}
+      />
 
       {showForm && (
-        <div className="habit-form-container rounded-xl p-6 border" style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)' }}>
-          <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t('habits.planning.createHabit')}</h3>
+        <div className="rounded-card border border-border bg-bg-input p-6">
+          <h3 className="mb-4 font-display text-title-md text-text-primary">{t('habits.planning.createHabit')}</h3>
           <HabitForm
             onSubmit={async (data) => { await onCreate(data); setShowForm(false) }}
             onCancel={() => setShowForm(false)}
@@ -97,15 +84,17 @@ export default function PlanningView({
       )}
 
       {filteredHabits.length === 0 ? (
-        <div className="empty-state text-center py-16 rounded-xl border border-dashed" style={{ background: 'var(--color-bg-input)', borderColor: 'var(--color-border)' }}>
-          <p className="text-lg" style={{ color: 'var(--color-text-muted)' }}>{t('habits.planning.noHabits')}</p>
-        </div>
+        <EmptyState title={t('habits.planning.noHabits')} />
       ) : (
         <div className="grid gap-4">
           {filteredHabits.map((habit) => (
             <div key={habit.id}>
               {editingId === habit.id ? (
-                <div className="dashboard-card rounded-xl shadow-md p-6 border-l-4" style={{ background: 'var(--color-bg-surface)', borderLeftColor: habit.color }}>
+                <Card
+                  padding="lg"
+                  className="border-l-4 shadow-md"
+                  style={{ borderLeftColor: habit.color }}
+                >
                   <HabitForm
                     initialData={habit}
                     onSubmit={(data) => handleUpdate(habit.id, data)}
@@ -113,7 +102,7 @@ export default function PlanningView({
                     categories={categories}
                     objectives={objectives}
                   />
-                </div>
+                </Card>
               ) : (
                 <HabitCard
                   habit={habit}

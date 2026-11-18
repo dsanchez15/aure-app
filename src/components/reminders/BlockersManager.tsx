@@ -63,7 +63,7 @@ export default function BlockersManager({ blockers, onChange }: BlockersManagerP
       {blockers.length > 0 && (
         <div className="space-y-1">
           {blockers.map((b, i) => (
-            <div key={i} className="flex items-center justify-between rounded-[8px] bg-bg-input px-3 py-1.5 text-sm">
+            <div key={i} className="flex items-center justify-between rounded-control bg-bg-input px-3 py-1.5 text-sm">
               <span className="capitalize text-text-secondary">
                 {b.blockerModule} #{b.blockerId}
               </span>

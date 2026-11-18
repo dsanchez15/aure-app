@@ -2,6 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import AppLayout from '@/components/AppLayout'
+import { PageHeader } from '@/components/layout'
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  Modal,
+  SectionHeader,
+  Spinner,
+  Textarea,
+} from '@/components/ui'
+import { useAppTranslation } from '@/components/LanguageProvider'
 
 interface Milestone {
   id: number
@@ -19,7 +32,19 @@ interface Suggestion {
   reason: string
 }
 
+/** Paleta de hitos sobre tokens; el color se guarda como valor del tema. */
+const MILESTONE_COLORS = [
+  'var(--color-warning)',
+  'var(--color-info)',
+  'var(--color-success)',
+  'var(--color-danger)',
+  'var(--color-primary)',
+]
+
+const DEFAULT_COLOR = MILESTONE_COLORS[0]
+
 export default function MilestonesPage() {
+  const { t, language } = useAppTranslation()
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -27,27 +52,41 @@ export default function MilestonesPage() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [date, setDate] = useState('')
-  const [color, setColor] = useState('#f59e0b')
+  const [color, setColor] = useState(DEFAULT_COLOR)
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
 
-  const colors = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  const resetForm = () => {
+    setTitle('')
+    setDescription('')
+    setDate('')
+    setColor(DEFAULT_COLOR)
+    setEditing(null)
+  }
 
   const fetchMilestones = useCallback(async () => {
     try {
       const res = await fetch('/api/milestones')
-      if (res.ok) setMilestones(await res.json())
-    } catch (err) { console.error(err) }
-    finally { setLoading(false) }
-  }, [])
+      if (!res.ok) throw new Error(t('milestones.loadError'))
+      setMilestones(await res.json())
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [t])
 
-  useEffect(() => { fetchMilestones() }, [fetchMilestones])
+  useEffect(() => {
+    fetchMilestones()
+  }, [fetchMilestones])
 
   const fetchSuggestions = async (milestone: Milestone) => {
     try {
       const res = await fetch(`/api/milestones/suggestions?milestoneId=${milestone.id}`)
       if (res.ok) setSuggestions(await res.json())
-    } catch (err) { console.error(err) }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -55,20 +94,37 @@ export default function MilestonesPage() {
     if (!title.trim() || !date) return
 
     const data = { title: title.trim(), description: description || null, date, color }
-    if (editing) {
-      await fetch(`/api/milestones/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-    } else {
-      await fetch('/api/milestones', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+
+    try {
+      const res = editing
+        ? await fetch(`/api/milestones/${editing.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          })
+        : await fetch('/api/milestones', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          })
+      if (!res.ok) throw new Error(t('milestones.saveError'))
+      setShowForm(false)
+      resetForm()
+      fetchMilestones()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : t('milestones.saveError'))
     }
-    setShowForm(false)
-    setEditing(null)
-    setTitle(''); setDescription(''); setDate(''); setColor('#f59e0b')
-    fetchMilestones()
   }
 
   const handleDelete = async (id: number) => {
-    await fetch(`/api/milestones/${id}`, { method: 'DELETE' })
-    fetchMilestones()
+    if (!confirm(t('milestones.confirmDelete'))) return
+    try {
+      const res = await fetch(`/api/milestones/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error(t('milestones.deleteError'))
+      fetchMilestones()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : t('milestones.deleteError'))
+    }
   }
 
   const addItem = async (milestoneId: number, itemModule: string, itemId: number) => {
@@ -79,7 +135,10 @@ export default function MilestonesPage() {
     })
     fetchMilestones()
     if (selectedMilestone?.id === milestoneId) {
-      fetchSuggestions({ ...selectedMilestone, items: [...(selectedMilestone.items || []), { itemModule, itemId }] })
+      fetchSuggestions({
+        ...selectedMilestone,
+        items: [...(selectedMilestone.items || []), { itemModule, itemId }],
+      })
     }
   }
 
@@ -88,135 +147,229 @@ export default function MilestonesPage() {
     await fetchSuggestions(m)
   }
 
+  const openEdit = (m: Milestone) => {
+    setEditing(m)
+    setTitle(m.title)
+    setDescription(m.description || '')
+    setDate(m.date.split('T')[0])
+    setColor(m.color)
+    setShowForm(true)
+  }
+
+  const locale = language === 'es' ? 'es' : 'en'
+
   if (loading) {
-    return <AppLayout><div className="flex items-center justify-center min-h-[400px]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" /></div></AppLayout>
+    return (
+      <AppLayout>
+        <div className="flex min-h-96 items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      </AppLayout>
+    )
   }
 
   return (
     <AppLayout>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Milestones</h2>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">{milestones.length} milestones</p>
-          </div>
-          <button onClick={() => { setShowForm(true); setEditing(null); setTitle(''); setDescription(''); setDate(''); setColor('#f59e0b') }}
-            className="btn-neon flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-[8px] hover:bg-primary/90 font-medium">
-            <span className="material-symbols-outlined text-sm">add</span>
-            New Milestone
-          </button>
-        </div>
+      <div className="flex flex-col gap-4">
+        <PageHeader
+          title={t('milestones.title')}
+          description={t('milestones.subtitle', { count: milestones.length })}
+          actions={
+            <Button
+              onClick={() => {
+                resetForm()
+                setShowForm(true)
+              }}
+            >
+              <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                add
+              </span>
+              {t('milestones.newMilestone')}
+            </Button>
+          }
+        />
 
         {milestones.length === 0 ? (
-          <div className="empty-state text-center py-16 bg-slate-50 dark:bg-slate-800/50 rounded-[8px] border border-dashed border-slate-300 dark:border-slate-700">
-            <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-4 block">flag</span>
-            <p className="text-slate-500 dark:text-slate-400 text-lg">No milestones yet</p>
-          </div>
+          <EmptyState
+            icon="flag"
+            title={t('milestones.noMilestones')}
+            description={t('milestones.createHint')}
+          />
         ) : (
-          <div className="grid gap-3">
-            {milestones.map(m => (
-              <div key={m.id} className="dashboard-card bg-white dark:bg-slate-800 rounded-[8px] border border-slate-200 dark:border-slate-700 p-4 group">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer" onClick={() => openDetail(m)}>
-                    <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: m.color }} />
-                    <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white">{m.title}</h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {new Date(m.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          <div className="flex flex-col gap-3">
+            {milestones.map((m) => (
+              <Card key={m.id} padding="md" className="group">
+                <div className="flex items-start justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => openDetail(m)}
+                    className="flex min-w-0 flex-1 items-center gap-3 rounded-control text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="h-3 w-3 shrink-0 rounded-pill"
+                      style={{ backgroundColor: m.color }}
+                    />
+                    <div className="min-w-0">
+                      <h3 className="truncate font-display text-title-md text-text-primary">{m.title}</h3>
+                      <p className="font-mono text-label-sm text-text-muted">
+                        {new Date(m.date).toLocaleDateString(locale, {
+                          month: 'long',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
                       </p>
-                      {m.description && <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">{m.description}</p>}
+                      {m.description && (
+                        <p className="mt-1 truncate font-body text-body-md text-text-secondary">
+                          {m.description}
+                        </p>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setEditing(m); setTitle(m.title); setDescription(m.description || ''); setDate(m.date.split('T')[0]); setColor(m.color); setShowForm(true) }}
-                      className="todo-action-btn p-1.5 text-slate-400 hover:text-primary rounded-[8px]">
-                      <span className="material-symbols-outlined text-lg">edit</span>
-                    </button>
-                    <button onClick={() => handleDelete(m.id)}
-                      className="todo-action-btn todo-action-btn-danger p-1.5 text-slate-400 hover:text-red-500 rounded-[8px]">
-                      <span className="material-symbols-outlined text-sm">delete</span>
-                    </button>
+                  </button>
+                  <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-1.5 text-text-secondary hover:text-primary"
+                      aria-label={t('common.edit')}
+                      onClick={() => openEdit(m)}
+                    >
+                      <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                        edit
+                      </span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-1.5 text-text-secondary hover:bg-danger/10 hover:text-danger"
+                      aria-label={t('common.delete')}
+                      onClick={() => handleDelete(m.id)}
+                    >
+                      <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                        delete
+                      </span>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}
 
-        {/* Detail panel with suggestions */}
         {selectedMilestone && (
-          <div className="dashboard-card bg-white dark:bg-slate-800 rounded-[8px] border border-slate-200 dark:border-slate-700 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-slate-900 dark:text-white">{selectedMilestone.title} — Suggestions</h3>
-              <button onClick={() => setSelectedMilestone(null)} className="text-slate-400 hover:text-slate-600">
-                <span className="material-symbols-outlined text-sm">close</span>
-              </button>
-            </div>
+          <Card padding="lg" className="flex flex-col gap-3">
+            <SectionHeader
+              title={`${selectedMilestone.title} — ${t('milestones.suggestions')}`}
+              actions={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="px-1.5"
+                  aria-label={t('common.close')}
+                  onClick={() => setSelectedMilestone(null)}
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                    close
+                  </span>
+                </Button>
+              }
+            />
             {suggestions.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No suggestions available</p>
+              <p className="font-body text-body-md text-text-muted">{t('milestones.noSuggestions')}</p>
             ) : (
-              <div className="space-y-2">
-                {suggestions.map((s, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded-[8px]">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">{s.module}</span>
-                      <span className="text-sm text-slate-700 dark:text-slate-300">{s.title}</span>
-                      <span className="text-xs text-slate-400">{s.reason}</span>
+              <div className="flex flex-col gap-2">
+                {suggestions.map((s) => (
+                  <div
+                    key={`${s.module}-${s.id}`}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-control bg-bg-surface-hover p-2.5"
+                  >
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <Badge variant="primary" className="capitalize">
+                        {s.module}
+                      </Badge>
+                      <span className="truncate font-label text-label-lg text-text-primary">{s.title}</span>
+                      <span className="font-label text-label-sm text-text-muted">{s.reason}</span>
                     </div>
-                    <button onClick={() => addItem(selectedMilestone.id, s.module, s.id)}
-                      className="px-2 py-1 text-xs bg-primary text-white rounded-[8px] hover:bg-primary/90">Add</button>
+                    <Button size="sm" onClick={() => addItem(selectedMilestone.id, s.module, s.id)}>
+                      {t('milestones.add')}
+                    </Button>
                   </div>
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         )}
 
-        {/* Form modal */}
-        {showForm && (
-          <div className="delete-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowForm(false)}>
-            <div className="dashboard-card bg-white dark:bg-slate-800 rounded-[8px] w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{editing ? 'Edit Milestone' : 'New Milestone'}</h3>
-                <form onSubmit={handleSave} className="space-y-4">
-                  <div>
-                    <label className="rf-label block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Title</label>
-                    <input type="text" value={title} onChange={e => setTitle(e.target.value)} autoFocus required
-                      className="form-input w-full px-4 py-2.5 rounded-[8px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" />
-                  </div>
-                  <div>
-                    <label className="rf-label block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                    <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2}
-                      className="form-input w-full px-4 py-2.5 rounded-[8px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 resize-none" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="rf-label block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
-                      <input type="date" value={date} onChange={e => setDate(e.target.value)} required
-                        className="form-input w-full px-4 py-2.5 rounded-[8px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" />
-                    </div>
-                    <div>
-                      <label className="rf-label block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Color</label>
-                      <div className="flex gap-2">
-                        {colors.map(c => (
-                          <button key={c} type="button" onClick={() => setColor(c)}
-                            className={`w-8 h-8 rounded-full transition-transform ${color === c ? 'ring-2 ring-offset-2 ring-primary scale-110' : 'hover:scale-105'}`}
-                            style={{ backgroundColor: c }} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 pt-2">
-                    <button type="button" onClick={() => setShowForm(false)}
-                      className="btn-outline flex-1 px-4 py-2.5 rounded-[8px] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium">Cancel</button>
-                    <button type="submit" disabled={!title.trim() || !date}
-                      className="btn-neon flex-1 px-4 py-2.5 bg-primary text-white rounded-[8px] hover:bg-primary/90 font-medium disabled:opacity-50">{editing ? 'Save' : 'Create'}</button>
-                  </div>
-                </form>
-              </div>
+        <Modal
+          isOpen={showForm}
+          onClose={() => {
+            setShowForm(false)
+            resetForm()
+          }}
+          title={editing ? t('milestones.editMilestone') : t('milestones.newMilestone')}
+        >
+          <form onSubmit={handleSave} className="flex flex-col gap-4">
+            <Input
+              label={t('milestones.form.title')}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              autoFocus
+              required
+            />
+            <Textarea
+              label={t('milestones.form.description')}
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="resize-none"
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label={t('milestones.form.date')}
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+              <fieldset className="flex flex-col gap-2">
+                <legend className="font-label text-label-md text-text-secondary">
+                  {t('milestones.form.color')}
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {MILESTONE_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setColor(c)}
+                      aria-label={`${t('milestones.form.color')} ${c}`}
+                      aria-pressed={color === c}
+                      className={`h-8 w-8 rounded-pill transition-state ${
+                        color === c ? 'ring-2 ring-primary ring-offset-2' : 'hover:scale-105'
+                      }`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </fieldset>
             </div>
-          </div>
-        )}
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                className="flex-1"
+                onClick={() => {
+                  setShowForm(false)
+                  resetForm()
+                }}
+              >
+                {t('milestones.form.cancel')}
+              </Button>
+              <Button type="submit" className="flex-1" disabled={!title.trim() || !date}>
+                {editing ? t('milestones.form.save') : t('milestones.form.create')}
+              </Button>
+            </div>
+          </form>
+        </Modal>
       </div>
     </AppLayout>
   )

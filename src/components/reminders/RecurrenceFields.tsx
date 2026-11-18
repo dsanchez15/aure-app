@@ -51,7 +51,7 @@ export default function RecurrenceFields({ value, onChange }: RecurrenceFieldsPr
       </Select>
 
       {value.frequency !== 'once' && (
-        <div className="space-y-3 rounded-[8px] bg-bg-input p-3">
+        <div className="space-y-3 rounded-control bg-bg-input p-3">
           <div className="grid grid-cols-2 gap-3">
             <Input
               label={t('reminders.form.interval')}
@@ -79,9 +79,9 @@ export default function RecurrenceFields({ value, onChange }: RecurrenceFieldsPr
                     key={i}
                     type="button"
                     onClick={() => toggleDayOfWeek(i)}
-                    className={`h-8 w-8 rounded-[8px] text-xs font-medium transition-colors ${
+                    className={`h-8 w-8 rounded-control text-xs font-medium transition-colors ${
                       value.daysOfWeek.includes(i)
-                        ? 'bg-primary text-white'
+                        ? 'bg-primary text-text-inverse'
                         : 'border border-border bg-bg-surface text-text-secondary'
                     }`}
                   >

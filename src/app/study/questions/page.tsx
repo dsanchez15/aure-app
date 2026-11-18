@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AppLayout from '@/components/AppLayout';
+import { PageHeader } from '@/components/layout';
 import { Button, EmptyState } from '@/components/ui';
 import { useAppTranslation } from '@/components/LanguageProvider';
 import { useQuestions } from '@/hooks/useQuestions';
@@ -58,11 +59,28 @@ export default function QuestionsPage() {
 
   return (
     <AppLayout>
-      <main className="flex-1 p-4 lg:p-8">
-        <header className="mb-6">
-          <h1 className="text-2xl font-bold">{t('study.questions.title')}</h1>
-          <p className="text-sm text-text-muted">{t('study.questions.subtitle')}</p>
-        </header>
+      <main className="flex flex-1 flex-col gap-6">
+        <PageHeader
+          title={t('study.questions.title')}
+          description={t('study.questions.subtitle')}
+          actions={
+            <>
+              <Button onClick={handleNew}>
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  add
+                </span>
+                {t('study.questions.newQuestion')}
+              </Button>
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-control border border-border bg-bg-surface px-4 py-2 font-label text-label-lg text-text-primary transition-state hover:bg-bg-surface-hover focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
+                <span aria-hidden="true" className="material-symbols-outlined text-lg">
+                  upload
+                </span>
+                {t('study.questions.importJson')}
+                <input type="file" accept=".json" onChange={handleImport} className="sr-only" />
+              </label>
+            </>
+          }
+        />
 
         <QuestionFilters
           filters={filters}
@@ -75,21 +93,7 @@ export default function QuestionsPage() {
           onClear={clearFilters}
         />
 
-        {/* Actions */}
-        <div className="mb-6 flex gap-3">
-          <Button onClick={handleNew}>
-            <span className="material-symbols-outlined text-sm">add</span>
-            {t('study.questions.newQuestion')}
-          </Button>
-          <label className="flex cursor-pointer items-center gap-2 rounded-[8px] border border-primary/30 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5">
-            <span className="material-symbols-outlined text-sm">upload</span>
-            {t('study.questions.importJson')}
-            <input type="file" accept=".json" onChange={handleImport} className="hidden" />
-          </label>
-        </div>
-
-        {/* Questions List */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {questions.length === 0 ? (
             <EmptyState icon="quiz" title={t('study.questions.noQuestions')} />
           ) : (
@@ -105,7 +109,6 @@ export default function QuestionsPage() {
           )}
         </div>
 
-        {/* Form Modal */}
         {showForm && (
           <QuestionFormModal
             question={editingQuestion}
@@ -116,7 +119,6 @@ export default function QuestionsPage() {
           />
         )}
 
-        {/* Import Summary Modal */}
         {importSummary && (
           <ImportSummaryModal summary={importSummary} onClose={() => setImportSummary(null)} />
         )}

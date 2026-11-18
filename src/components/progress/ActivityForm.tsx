@@ -73,7 +73,7 @@ export default function ActivityForm({ goals, phases, saving, setSaving, onSaved
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {formError && (
-        <div className="rounded-[8px] bg-danger/10 p-3 text-sm text-danger">{formError}</div>
+        <div className="rounded-control bg-danger/10 p-3 text-sm text-danger">{formError}</div>
       )}
 
       <div className="grid grid-cols-2 gap-4">

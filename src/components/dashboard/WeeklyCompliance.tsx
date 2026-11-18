@@ -1,6 +1,6 @@
 'use client'
 
-import { Card } from '@/components/ui'
+import { Card, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { DashboardMetrics } from '@/types/dashboard'
 
@@ -12,17 +12,24 @@ export default function WeeklyCompliance({ metrics }: WeeklyComplianceProps) {
   const { t } = useAppTranslation()
 
   return (
-    <Card className="dashboard-card mt-4">
-      <div className="mb-2 flex items-center justify-between">
-        <h4 className="card-title text-sm font-semibold text-text-primary">{t('dashboard.weeklyCompliance')}</h4>
-        {metrics && <span className="text-sm font-bold text-success">{metrics.weeklyCompliance}%</span>}
-      </div>
+    <Card padding="lg" className="flex flex-col gap-3">
+      <SectionHeader
+        title={t('dashboard.weeklyCompliance')}
+        actions={
+          metrics ? (
+            <span className="font-mono text-title-md tabular-nums text-success">{metrics.weeklyCompliance}%</span>
+          ) : undefined
+        }
+      />
       {metrics ? (
         <div className="space-y-2">
-          <div className="h-2.5 w-full rounded-full bg-bg-input">
-            <div className="h-2.5 rounded-full bg-success transition-all" style={{ width: `${metrics.weeklyCompliance}%` }} />
+          <div className="h-2 w-full rounded-pill bg-bg-surface-hover">
+            <div
+              className="h-2 rounded-pill bg-success transition-surface"
+              style={{ width: `${metrics.weeklyCompliance}%` }}
+            />
           </div>
-          <p className="text-xs text-text-muted">
+          <p className="font-label text-label-sm text-text-muted">
             {metrics.weeklyCompliance >= 80
               ? t('dashboard.compliance.high')
               : metrics.weeklyCompliance >= 50
@@ -31,7 +38,7 @@ export default function WeeklyCompliance({ metrics }: WeeklyComplianceProps) {
           </p>
         </div>
       ) : (
-        <p className="py-2 text-center text-sm text-text-muted">{t('common.loading')}</p>
+        <p className="py-2 text-center font-body text-body-md text-text-muted">{t('common.loading')}</p>
       )}
     </Card>
   )

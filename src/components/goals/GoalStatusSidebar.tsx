@@ -1,6 +1,6 @@
 'use client'
 
-import { Badge, Card } from '@/components/ui'
+import { Badge, Button, Card, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { Goal, GoalStatus } from '@/types/goal'
 
@@ -43,69 +43,60 @@ export default function GoalStatusSidebar({
   const { t } = useAppTranslation()
 
   return (
-    <Card padding="lg" className="dashboard-card">
-      <h3 className="mb-4 font-semibold text-text-primary">{t('goals.statusLabel')}</h3>
-      <div className="space-y-2">
-        <Badge variant={STATUS_VARIANTS[goal.status]} className="px-3 py-1 text-sm">
-          {t(`goals.status.${goal.status.toLowerCase()}`)}
-        </Badge>
-      </div>
+    <Card padding="lg" className="flex flex-col gap-4">
+      <SectionHeader title={t('goals.statusLabel')} icon="flag" />
+      <Badge variant={STATUS_VARIANTS[goal.status]} className="w-fit px-3 py-1">
+        {t(`goals.status.${goal.status.toLowerCase()}`)}
+      </Badge>
 
       {permissions.canEdit && !isEditing && (
-        <div className="mt-4 rounded-[8px] bg-warning/10 p-3 text-xs text-warning">
+        <div className="rounded-control bg-warning/10 p-3 font-label text-label-md text-warning">
           {t('goals.alerts.noProgress')}
         </div>
       )}
 
       {!isEditing && permissions.canChangeStatus && (
-        <div className="mt-4 space-y-2">
+        <div className="flex flex-col gap-2">
           {permissions.canActivate && (
-            <button
-              onClick={() => onStatusChange('ACTIVE')}
-              disabled={saving}
-              className="w-full rounded-[8px] border border-border px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-primary/5"
-            >
+            <Button variant="secondary" fullWidth disabled={saving} onClick={() => onStatusChange('ACTIVE')}>
               {t('goals.actions.activate')}
-            </button>
+            </Button>
           )}
           {permissions.canPause && (
-            <button
-              onClick={() => onStatusChange('PAUSED')}
-              disabled={saving}
-              className="w-full rounded-[8px] border border-border px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-primary/5"
-            >
+            <Button variant="secondary" fullWidth disabled={saving} onClick={() => onStatusChange('PAUSED')}>
               {t('goals.actions.pause')}
-            </button>
+            </Button>
           )}
           {permissions.canComplete && (
-            <button
-              onClick={() => onStatusChange('COMPLETED')}
+            <Button
+              variant="secondary"
+              fullWidth
               disabled={saving}
-              className="w-full rounded-[8px] border border-border px-3 py-2 text-sm text-success transition-colors hover:bg-success/10"
+              className="border-success/40 text-success hover:bg-success/10"
+              onClick={() => onStatusChange('COMPLETED')}
             >
               {t('goals.actions.complete')}
-            </button>
+            </Button>
           )}
         </div>
       )}
 
       {!isEditing && (
-        <div className="mt-4 space-y-2 border-t border-border pt-4">
+        <div className="flex flex-col gap-2 border-t border-border pt-4">
           {permissions.canEdit && (
-            <button
-              onClick={onEdit}
-              className="w-full rounded-[8px] px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-primary/5"
-            >
+            <Button variant="ghost" fullWidth onClick={onEdit}>
               {t('goals.actions.editGoal')}
-            </button>
+            </Button>
           )}
           {permissions.canDelete && (
-            <button
+            <Button
+              variant="ghost"
+              fullWidth
+              className="text-danger hover:bg-danger/10"
               onClick={onDelete}
-              className="w-full rounded-[8px] px-3 py-2 text-sm text-danger transition-colors hover:bg-danger/10"
             >
               {t('goals.actions.deleteGoal')}
-            </button>
+            </Button>
           )}
         </div>
       )}

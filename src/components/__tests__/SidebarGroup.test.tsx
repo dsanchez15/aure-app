@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import SidebarGroup from '@/components/SidebarGroup'
+import SidebarGroup from '@/components/layout/SidebarGroup'
 
 vi.mock('next/link', () => ({
   default: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
@@ -9,12 +9,12 @@ vi.mock('next/link', () => ({
 }))
 
 const items = [
-  { href: '/goals', icon: 'flag', label: 'Goals' },
-  { href: '/progress', icon: 'trending_up', label: 'Progress' },
+  { href: '/goals', icon: 'flag', label: 'Objetivos' },
+  { href: '/progress', icon: 'trending_up', label: 'Progreso' },
 ]
 
 describe('SidebarGroup', () => {
-  it('renders group label when expanded', () => {
+  it('renders the group button with aria-expanded and aria-controls when expanded', () => {
     render(
       <SidebarGroup
         icon="track_changes"
@@ -27,27 +27,29 @@ describe('SidebarGroup', () => {
         items={items}
       />
     )
-    expect(screen.getByText('Plan')).toBeInTheDocument()
+    const button = screen.getByRole('button', { name: /Plan/ })
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+    expect(button).toHaveAttribute('aria-controls')
   })
 
-  it('hides label text when collapsed', () => {
+  it('reflects the open state in aria-expanded and the panel', () => {
     const { container } = render(
       <SidebarGroup
         icon="track_changes"
         label="Plan"
-        isExpanded={false}
-        groupExpanded={false}
+        isExpanded={true}
+        groupExpanded={true}
         onToggle={() => {}}
         isActive={false}
-        pathname="/dashboard"
+        pathname="/goals"
         items={items}
       />
     )
-    const textSpan = container.querySelector('.opacity-0.w-0')
-    expect(textSpan).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Plan/ })).toHaveAttribute('aria-expanded', 'true')
+    expect(container.querySelector('.sidebar-children')).toHaveAttribute('data-open', 'true')
   })
 
-  it('calls onToggle when button is clicked', () => {
+  it('calls onToggle when the group is clicked', () => {
     const onToggle = vi.fn()
     render(
       <SidebarGroup
@@ -61,12 +63,12 @@ describe('SidebarGroup', () => {
         items={items}
       />
     )
-    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByRole('button', { name: /Plan/ }))
     expect(onToggle).toHaveBeenCalledOnce()
   })
 
-  it('shows chevron icon when expanded', () => {
-    render(
+  it('shows the chevron only when expanded', () => {
+    const { rerender } = render(
       <SidebarGroup
         icon="track_changes"
         label="Plan"
@@ -79,10 +81,8 @@ describe('SidebarGroup', () => {
       />
     )
     expect(screen.getByText('chevron_right')).toBeInTheDocument()
-  })
 
-  it('does not show chevron when collapsed', () => {
-    render(
+    rerender(
       <SidebarGroup
         icon="track_changes"
         label="Plan"
@@ -97,8 +97,8 @@ describe('SidebarGroup', () => {
     expect(screen.queryByText('chevron_right')).not.toBeInTheDocument()
   })
 
-  it('renders sub-items when group is expanded', () => {
-    render(
+  it('renders the sub-items inside the tree guide when expanded', () => {
+    const { container } = render(
       <SidebarGroup
         icon="track_changes"
         label="Plan"
@@ -106,15 +106,17 @@ describe('SidebarGroup', () => {
         groupExpanded={true}
         onToggle={() => {}}
         isActive={false}
-        pathname="/dashboard"
+        pathname="/goals"
         items={items}
       />
     )
-    expect(screen.getByText('Goals')).toBeInTheDocument()
-    expect(screen.getByText('Progress')).toBeInTheDocument()
+    const tree = container.querySelector('ul.border-l')
+    expect(tree).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Objetivos' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Progreso' })).not.toHaveAttribute('aria-current')
   })
 
-  it('renders sub-items when group is collapsed (icon-only mode)', () => {
+  it('hides the group button in the rail and exposes the children as icons', () => {
     render(
       <SidebarGroup
         icon="track_changes"
@@ -127,45 +129,11 @@ describe('SidebarGroup', () => {
         items={items}
       />
     )
-    const links = screen.getAllByRole('link')
-    expect(links.length).toBeGreaterThanOrEqual(2)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('link')).toHaveLength(2)
   })
 
-  it('shows tree line when expanded and group is open', () => {
-    const { container } = render(
-      <SidebarGroup
-        icon="track_changes"
-        label="Plan"
-        isExpanded={true}
-        groupExpanded={true}
-        onToggle={() => {}}
-        isActive={false}
-        pathname="/dashboard"
-        items={items}
-      />
-    )
-    const treeLine = container.querySelector('.w-\\[2px\\]')
-    expect(treeLine).toBeInTheDocument()
-  })
-
-  it('does not show tree line when collapsed', () => {
-    const { container } = render(
-      <SidebarGroup
-        icon="track_changes"
-        label="Plan"
-        isExpanded={false}
-        groupExpanded={true}
-        onToggle={() => {}}
-        isActive={false}
-        pathname="/dashboard"
-        items={items}
-      />
-    )
-    const treeLines = container.querySelectorAll('.w-\\[2px\\]')
-    expect(treeLines.length).toBe(0)
-  })
-
-  it('applies active class when isActive is true', () => {
+  it('highlights the group when a child route is active', () => {
     render(
       <SidebarGroup
         icon="track_changes"
@@ -174,15 +142,14 @@ describe('SidebarGroup', () => {
         groupExpanded={false}
         onToggle={() => {}}
         isActive={true}
-        pathname="/dashboard"
+        pathname="/progress"
         items={items}
       />
     )
-    const button = screen.getByRole('button')
-    expect(button.className).toContain('active')
+    expect(screen.getByRole('button', { name: /Plan/ }).className).toContain('text-primary')
   })
 
-  it('uses CSS Grid for expand/collapse animation', () => {
+  it('uses no inline styles', () => {
     const { container } = render(
       <SidebarGroup
         icon="track_changes"
@@ -195,24 +162,6 @@ describe('SidebarGroup', () => {
         items={items}
       />
     )
-    const gridContainer = container.querySelector('.grid')
-    expect(gridContainer).toBeInTheDocument()
-  })
-
-  it('sets paddingRight to 22px on sub-items when expanded', () => {
-    const { container } = render(
-      <SidebarGroup
-        icon="track_changes"
-        label="Plan"
-        isExpanded={true}
-        groupExpanded={true}
-        onToggle={() => {}}
-        isActive={false}
-        pathname="/dashboard"
-        items={items}
-      />
-    )
-    const subItemContainer = container.querySelector('[style*="22px"]')
-    expect(subItemContainer).toBeInTheDocument()
+    expect(container.querySelectorAll('[style]')).toHaveLength(0)
   })
 })

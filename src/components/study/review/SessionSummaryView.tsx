@@ -21,13 +21,10 @@ function DeltaRow({ delta, label, invert = false, suffix = '' }: { delta: number
       : 'trending_down'
   return (
     <div className="flex items-center gap-2">
-      <span
-        className="material-symbols-outlined text-sm"
-        style={{ color: isGood ? 'var(--color-success)' : 'var(--color-danger)' }}
-      >
+      <span className={`material-symbols-outlined text-sm ${isGood ? 'text-success' : 'text-danger'}`}>
         {icon}
       </span>
-      <span>
+      <span className="font-label text-label-lg tabular-nums">
         {label}: {delta >= 0 ? '+' : ''}
         {delta}
         {suffix}
@@ -56,27 +53,27 @@ export default function SessionSummaryView({ result, previousResult, onNewSessio
   return (
     <div className="mx-auto max-w-md">
       <Card padding="lg" className="text-center">
-        <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${iconConfig.classes}`}>
+        <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-pill ${iconConfig.classes}`}>
           <span className="material-symbols-outlined text-3xl">{iconConfig.icon}</span>
         </div>
-        <h2 className="mb-1 text-xl font-bold">{t('study.review.sessionComplete')}</h2>
-        <p className="mb-6 text-sm text-text-muted">
+        <h2 className="mb-1 font-display text-title-lg text-text-primary">{t('study.review.sessionComplete')}</h2>
+        <p className="mb-6 font-body text-body-md text-text-muted">
           {t('study.review.questionsAnswered', { count: result.totalQuestions })}
         </p>
 
         <div className="mb-6 grid grid-cols-3 gap-3">
           {stats.map((stat) => (
-            <div key={stat.label} className="rounded-[8px] bg-bg-surface-hover p-3">
-              <p className={`text-2xl font-bold ${stat.valueClass}`}>{stat.value}</p>
-              <p className="text-xs text-text-muted">{stat.label}</p>
+            <div key={stat.label} className="rounded-control bg-bg-surface-hover p-3">
+              <p className={`font-mono text-headline-md tabular-nums ${stat.valueClass}`}>{stat.value}</p>
+              <p className="font-label text-label-md text-text-muted">{stat.label}</p>
             </div>
           ))}
         </div>
 
         {previousResult && (
-          <div className="mb-6 rounded-[8px] bg-bg-surface-hover p-3 text-left">
-            <p className="mb-2 text-sm font-medium">{t('study.review.comparisonTitle')}</p>
-            <div className="space-y-1 text-sm">
+          <div className="mb-6 rounded-control bg-bg-surface-hover p-3 text-left">
+            <p className="mb-2 font-label text-label-lg text-text-primary">{t('study.review.comparisonTitle')}</p>
+            <div className="flex flex-col gap-1">
               <DeltaRow delta={result.correctCount - previousResult.correctCount} label={t('study.review.correctCount')} />
               <DeltaRow
                 delta={result.incorrectCount - previousResult.incorrectCount}

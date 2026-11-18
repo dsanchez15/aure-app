@@ -14,7 +14,7 @@ export default function NumberSelector({ options, value, onChange, ariaLabel }: 
         <button
           key={num}
           onClick={() => onChange(num)}
-          className={`h-10 w-10 rounded-[8px] border-2 font-bold transition-all ${
+          className={`h-10 w-10 rounded-control border-2 font-bold transition-all ${
             value === num ? 'border-primary bg-primary/10 text-primary' : 'settings-num-btn-inactive'
           }`}
           style={value !== num ? { borderColor: 'var(--color-border)' } : undefined}

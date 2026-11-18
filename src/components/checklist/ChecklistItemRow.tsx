@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { computeBlockerPayload, getSubtaskProgress, isParentAutoCompleted } from '@/lib/checklist-utils'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { Badge, Button, Textarea } from '@/components/ui'
 import { priorityConfig } from './helpers'
 import type { ChecklistItem, Priority } from '@/types/checklist'
 
@@ -86,7 +87,7 @@ export default function ChecklistItemRow({
         style={{ paddingLeft: `${depth * 20}px` }}
       >
         {mode !== 'history' && (
-          <span className="material-symbols-outlined cursor-grab text-xs text-text-muted">drag_indicator</span>
+          <span className="material-symbols-outlined cursor-grab text-label-md text-text-muted">drag_indicator</span>
         )}
 
         {/* Chevron toggle for parents with children */}
@@ -96,11 +97,11 @@ export default function ChecklistItemRow({
               e.stopPropagation()
               onToggleCollapse(item.id)
             }}
-            className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-text-muted transition-transform"
+            className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-text-muted transition-state"
             aria-label={isCollapsed ? 'Expand children' : 'Collapse children'}
           >
             <span
-              className="material-symbols-outlined text-sm transition-transform"
+              className="material-symbols-outlined text-body-md transition-transform"
               style={{ transform: isCollapsed ? 'rotate(0deg)' : 'rotate(90deg)' }}
             >
               chevron_right
@@ -118,16 +119,15 @@ export default function ChecklistItemRow({
             onClick={() => mode === 'active' && !blocked && onToggleItem(checklistId, item)}
             role="checkbox"
             aria-checked={item.completed}
-            className={`checklist-item-checkbox flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-sm border-2 transition-state ${
               item.completed
-                ? 'checklist-item-checkbox-checked border-primary bg-primary'
+                ? 'border-primary bg-primary'
                 : blocked || mode !== 'active'
-                  ? 'cursor-not-allowed'
-                  : 'checklist-checkbox-unchecked'
+                  ? 'cursor-not-allowed border-border-strong'
+                  : 'border-border-strong hover:border-primary'
             }`}
-            style={!item.completed ? { borderColor: 'var(--color-border-strong)' } : undefined}
           >
-            {item.completed && <span className="material-symbols-outlined text-xs text-white">check</span>}
+            {item.completed && <span className="material-symbols-outlined text-label-md text-text-inverse">check</span>}
           </button>
         )}
 
@@ -142,22 +142,20 @@ export default function ChecklistItemRow({
                 if (e.key === 'Enter') saveEdit()
                 if (e.key === 'Escape') setIsEditing(false)
               }}
-              className="checklist-item-input flex-1 border-b-2 border-primary bg-transparent px-1 py-0.5 text-sm text-text-primary focus:outline-none"
+              className="flex-1 border-b-2 border-primary bg-transparent px-1 py-0.5 font-body text-body-md text-text-primary focus:outline-none"
             />
             <input
               type="number"
               value={editEffort}
               onChange={(e) => setEditEffort(e.target.value ? parseInt(e.target.value) : '')}
               placeholder="Min"
-              className="rf-input w-16 border-b bg-transparent px-1 py-0.5 text-xs text-text-primary focus:outline-none"
-              style={{ borderColor: 'var(--color-border)' }}
+              className="w-16 border-b border-border bg-transparent px-1 py-0.5 font-body text-label-md text-text-primary focus:outline-none"
             />
             <select
               value={editBlockedBy}
               onChange={(e) => setEditBlockedBy(e.target.value ? parseInt(e.target.value) : '')}
               aria-label={t('checklists.expandedItems.noBlocker')}
-              className="todo-select border-b bg-transparent px-1 py-0.5 text-xs text-text-primary focus:outline-none"
-              style={{ borderColor: 'var(--color-border)' }}
+              className="border-b border-border bg-transparent px-1 py-0.5 font-body text-label-md text-text-primary focus:outline-none"
             >
               <option value="">{t('checklists.expandedItems.noBlocker')}</option>
               {itemsList
@@ -173,20 +171,19 @@ export default function ChecklistItemRow({
           <>
             <span
               onDoubleClick={() => mode !== 'history' && startEdit()}
-              className={`flex-1 text-sm ${isMuted ? 'checklist-item-completed line-through' : blocked ? 'checklist-item-blocked' : ''}`}
-              style={{
-                color: isMuted || blocked ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
-              }}
+              className={`flex-1 font-body text-body-md ${
+                isMuted ? 'line-through' : ''
+              } ${isMuted || blocked ? 'text-text-muted' : 'text-text-primary'}`}
             >
               {item.title}
               {blocked && (
-                <span className="checklist-item-blocked-badge ml-2 inline-flex items-center gap-0.5 text-xs text-warning">
-                  <span className="material-symbols-outlined text-xs">lock</span>
+                <Badge variant="warning" className="ml-2">
+                  <span className="material-symbols-outlined text-body-md">lock</span>
                   {t('checklists.expandedItems.blocked')}
-                </span>
+                </Badge>
               )}
               {item.effortEstimate ? (
-                <span className="ml-2 text-xs text-text-muted">({item.effortEstimate}m)</span>
+                <span className="ml-2 font-label text-label-md text-text-muted">({item.effortEstimate}m)</span>
               ) : null}
             </span>
             {hasChildren && (
@@ -200,37 +197,38 @@ export default function ChecklistItemRow({
             <button
               onClick={openNotes}
               title={item.notes || 'Add notes'}
-              className={`todo-action-btn p-0.5 transition-opacity ${item.notes ? '' : 'opacity-0 group-hover/item:opacity-100'}`}
-              style={{ color: item.notes ? 'var(--color-warning)' : 'var(--color-text-muted)' }}
+              className={`p-0.5 transition-state ${item.notes ? 'text-warning' : 'text-text-muted'} ${
+                item.notes ? '' : 'opacity-0 group-hover/item:opacity-100 focus-visible:opacity-100'
+              }`}
             >
-              <span className="material-symbols-outlined text-xs">sticky_note_2</span>
+              <span className="material-symbols-outlined text-label-md">sticky_note_2</span>
             </button>
             <button
               onClick={cyclePriority}
               title={`Priority: ${item.priority}`}
-              className="material-symbols-outlined cursor-pointer text-xs transition-transform hover:scale-125"
+              className="material-symbols-outlined cursor-pointer text-label-md transition-state hover:scale-125"
               style={{ color: prio.color }}
             >
               {prio.icon}
             </button>
             <button
               onClick={startEdit}
-              className="todo-action-btn p-0.5 text-text-muted opacity-0 transition-opacity hover:text-primary group-hover/item:opacity-100"
+              className="p-0.5 text-text-muted opacity-0 transition-state hover:text-primary group-hover/item:opacity-100 focus-visible:opacity-100"
             >
-              <span className="material-symbols-outlined text-sm">edit</span>
+              <span className="material-symbols-outlined text-body-md">edit</span>
             </button>
             <button
               onClick={() => onCreateReminder(checklistId, item)}
               title="Set reminder"
-              className="todo-action-btn checklist-action-btn-reminder p-0.5 text-text-muted opacity-0 transition-opacity group-hover/item:opacity-100"
+              className="p-0.5 text-text-muted opacity-0 transition-state hover:text-warning group-hover/item:opacity-100 focus-visible:opacity-100"
             >
-              <span className="material-symbols-outlined text-sm">notifications</span>
+              <span className="material-symbols-outlined text-body-md">notifications</span>
             </button>
             <button
               onClick={() => onDeleteItem(item.id)}
-              className="todo-action-btn todo-action-btn-danger p-0.5 text-text-muted opacity-0 transition-opacity group-hover/item:opacity-100"
+              className="p-0.5 text-text-muted opacity-0 transition-state hover:bg-danger/10 hover:text-danger group-hover/item:opacity-100 focus-visible:opacity-100"
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <span className="material-symbols-outlined text-body-md">close</span>
             </button>
           </>
         )}
@@ -239,29 +237,26 @@ export default function ChecklistItemRow({
       {/* Notes editor */}
       {showNotes && mode !== 'history' && (
         <div className="mb-2 mt-1" style={{ marginLeft: `${depth * 20 + 40}px` }}>
-          <textarea
+          <Textarea
             value={notesValue}
             onChange={(e) => setNotesValue(e.target.value)}
             rows={2}
             placeholder={t('checklists.expandedItems.notesPlaceholder')}
-            className="checklist-notes-area w-full resize-none rounded-lg border border-border bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+            className="resize-none"
           />
           <div className="mt-1 flex gap-2">
-            <button
+            <Button
+              size="sm"
               onClick={() => {
                 onUpdateItem(checklistId, item, { notes: notesValue || null })
                 setShowNotes(false)
               }}
-              className="btn-neon rounded-lg bg-primary px-3 py-1 text-xs text-white hover:bg-primary/90"
             >
               {t('common.save')}
-            </button>
-            <button
-              onClick={() => setShowNotes(false)}
-              className="btn-outline checklist-cancel-btn px-3 py-1 text-xs text-text-muted"
-            >
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowNotes(false)}>
               {t('common.cancel')}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -272,7 +267,7 @@ export default function ChecklistItemRow({
 function SubtaskCounter({ itemsList, parentId }: { itemsList: ChecklistItem[]; parentId: number }) {
   const progress = getSubtaskProgress(itemsList, parentId)
   return (
-    <span className="flex-shrink-0 text-xs font-medium text-text-muted">
+    <span className="flex-shrink-0 font-label text-label-md font-medium text-text-muted">
       {progress.completed}/{progress.total}
     </span>
   )

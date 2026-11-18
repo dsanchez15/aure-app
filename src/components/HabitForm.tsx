@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { t } from '@/lib/i18n'
 import { useAppTranslation } from '@/components/LanguageProvider'
+import { Button, Checkbox, Input, Select, Textarea } from '@/components/ui'
 import { HabitFormData, Category, Objective, HabitState, GoalType } from '@/types/habit'
 
 interface HabitFormProps {
@@ -13,29 +13,21 @@ interface HabitFormProps {
   objectives?: Objective[]
 }
 
-const colors = [
-  { name: t('habits.colors.blue'), value: '#3b82f6' },
-  { name: t('habits.colors.green'), value: '#22c55e' },
-  { name: t('habits.colors.red'), value: '#ef4444' },
-  { name: t('habits.colors.yellow'), value: '#eab308' },
-  { name: t('habits.colors.purple'), value: '#a855f7' },
-  { name: t('habits.colors.pink'), value: '#ec4899' },
-  { name: t('habits.colors.orange'), value: '#f97316' },
-  { name: t('habits.colors.cyan'), value: '#06b6d4' },
-]
+const DEFAULT_COLOR = 'var(--color-info)'
 
-const goalTypes: { value: GoalType; label: string }[] = [
-  { value: 'Daily', label: t('habits.goalTypes.daily') },
-  { value: 'Weekly', label: t('habits.goalTypes.weekly') },
-  { value: 'Monthly', label: t('habits.goalTypes.monthly') },
-  { value: 'Ratio', label: t('habits.goalTypes.ratio') },
-]
+const goalTypeValues: GoalType[] = ['Daily', 'Weekly', 'Monthly', 'Ratio']
 
-export default function HabitForm({ onSubmit, onCancel, initialData, categories = [], objectives = [] }: HabitFormProps) {
+export default function HabitForm({
+  onSubmit,
+  onCancel,
+  initialData,
+  categories = [],
+  objectives = [],
+}: HabitFormProps) {
   const { t } = useAppTranslation()
   const [title, setTitle] = useState(initialData?.title || '')
   const [description, setDescription] = useState(initialData?.description || '')
-  const [color, setColor] = useState(initialData?.color || '#3b82f6')
+  const [color, setColor] = useState(initialData?.color || DEFAULT_COLOR)
   const [state, setState] = useState<HabitState>(initialData?.state || 'Active')
   const [isPermanent, setIsPermanent] = useState(initialData?.isPermanent !== false)
   const [startDate, setStartDate] = useState(initialData?.startDate || '')
@@ -45,6 +37,14 @@ export default function HabitForm({ onSubmit, onCancel, initialData, categories 
   const [categoryId, setCategoryId] = useState(initialData?.categoryId || '')
   const [objectiveId, setObjectiveId] = useState(initialData?.objectiveId || '')
   const [cycleError, setCycleError] = useState('')
+
+  const colorOptions = [
+    { name: t('habits.colors.blue'), value: 'var(--color-info)' },
+    { name: t('habits.colors.green'), value: 'var(--color-success)' },
+    { name: t('habits.colors.red'), value: 'var(--color-danger)' },
+    { name: t('habits.colors.yellow'), value: 'var(--color-warning)' },
+    { name: t('habits.colors.purple'), value: 'var(--color-primary)' },
+  ]
 
   useEffect(() => {
     if (!isPermanent) {
@@ -80,7 +80,7 @@ export default function HabitForm({ onSubmit, onCancel, initialData, categories 
     if (!initialData) {
       setTitle('')
       setDescription('')
-      setColor('#3b82f6')
+      setColor(DEFAULT_COLOR)
       setState('Active')
       setIsPermanent(true)
       setStartDate('')
@@ -93,192 +93,144 @@ export default function HabitForm({ onSubmit, onCancel, initialData, categories 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <label htmlFor="title" className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {t('habits.form.titleLabel')}
-          </label>
-          <input
-            type="text"
-            id="title"
+          <Input
+            label={t('habits.form.titleLabel')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="rf-input w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
             placeholder={t('habits.form.titlePlaceholder')}
             required
           />
         </div>
 
         <div className="md:col-span-2">
-          <label htmlFor="description" className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {t('habits.form.descriptionLabel')}
-          </label>
-          <textarea
-            id="description"
+          <Textarea
+            label={t('habits.form.descriptionLabel')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="rf-input w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-            style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-            rows={2}
             placeholder={t('habits.form.descriptionPlaceholder')}
+            rows={2}
+            className="resize-none"
           />
         </div>
 
-        <div>
-          <label className="rf-label block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.form.colorLabel')}</label>
+        <fieldset className="flex flex-col gap-2">
+          <legend className="font-label text-label-md text-text-secondary">
+            {t('habits.form.colorLabel')}
+          </legend>
           <div className="flex flex-wrap gap-2">
-            {colors.map((c) => (
+            {colorOptions.map((c) => (
               <button
                 key={c.value}
                 type="button"
                 onClick={() => setColor(c.value)}
-                className={`w-8 h-8 rounded-full transition-all ${color === c.value
-                    ? 'ring-2 ring-offset-2 scale-110'
+                aria-label={c.name}
+                aria-pressed={color === c.value}
+                className={`h-8 w-8 rounded-pill transition-state ${
+                  color === c.value
+                    ? 'ring-2 ring-border-strong ring-offset-2 ring-offset-bg-surface'
                     : 'hover:scale-105'
-                  }`}
-                style={{
-                  backgroundColor: c.value,
-                  ...(color === c.value ? { '--tw-ring-color': 'var(--color-border-strong)', '--tw-ring-offset-color': 'var(--color-bg-surface)' } as React.CSSProperties : {})
-                }}
-                title={c.name}
+                }`}
+                style={{ backgroundColor: c.value }}
               />
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <div>
-          <label className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.form.stateLabel')}</label>
-          <select
-            value={state}
-            onChange={(e) => setState(e.target.value as HabitState)}
-            className="rf-select w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary"
-            style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-          >
-            <option value="Active">{t('habits.card.statusActive')}</option>
-            <option value="Paused">{t('habits.card.statusPaused')}</option>
-            <option value="Archived">{t('habits.card.statusArchived')}</option>
-          </select>
-        </div>
+        <Select
+          label={t('habits.form.stateLabel')}
+          value={state}
+          onChange={(e) => setState(e.target.value as HabitState)}
+        >
+          <option value="Active">{t('habits.card.statusActive')}</option>
+          <option value="Paused">{t('habits.card.statusPaused')}</option>
+          <option value="Archived">{t('habits.card.statusArchived')}</option>
+        </Select>
 
-        <div>
-          <label className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.form.categoryLabel')}</label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="rf-select w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary"
-            style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-          >
-            <option value="">{t('habits.form.noCategory')}</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label={t('habits.form.categoryLabel')}
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+        >
+          <option value="">{t('habits.form.noCategory')}</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </Select>
 
-        <div>
-          <label className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.form.objectiveLabel')}</label>
-          <select
-            value={objectiveId}
-            onChange={(e) => setObjectiveId(e.target.value)}
-            className="rf-select w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary"
-            style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-          >
-            <option value="">{t('habits.form.noObjective')}</option>
-            {objectives.map((obj) => (
-              <option key={obj.id} value={obj.id}>{obj.name}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label={t('habits.form.objectiveLabel')}
+          value={objectiveId}
+          onChange={(e) => setObjectiveId(e.target.value)}
+        >
+          <option value="">{t('habits.form.noObjective')}</option>
+          {objectives.map((obj) => (
+            <option key={obj.id} value={obj.id}>
+              {obj.name}
+            </option>
+          ))}
+        </Select>
 
         <div className="md:col-span-2">
-          <label className="rf-label flex items-center gap-2 text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-            <input
-              type="checkbox"
-              checked={isPermanent}
-              onChange={(e) => setIsPermanent(e.target.checked)}
-              className="w-4 h-4 text-primary rounded focus:ring-primary"
-            />
-            {t('habits.form.permanentLabel')}
-          </label>
+          <Checkbox
+            label={t('habits.form.permanentLabel')}
+            checked={isPermanent}
+            onChange={(e) => setIsPermanent(e.target.checked)}
+          />
         </div>
 
         {!isPermanent && (
           <>
-            <div>
-              <label className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.form.startDateLabel')}</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="rf-input w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary"
-                style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-              />
-            </div>
-            <div>
-              <label className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.form.endDateLabel')}</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="rf-input w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary"
-                style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-              />
-            </div>
-            {cycleError && (
-              <div className="md:col-span-2 text-sm" style={{ color: 'var(--color-danger)' }}>{cycleError}</div>
-            )}
+            <Input
+              label={t('habits.form.startDateLabel')}
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <Input
+              label={t('habits.form.endDateLabel')}
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              error={cycleError || undefined}
+            />
           </>
         )}
 
-        <div>
-          <label className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>{t('habits.form.goalTypeLabel')}</label>
-          <select
-            value={goalType}
-            onChange={(e) => setGoalType(e.target.value as GoalType)}
-            className="rf-select w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary"
-            style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-          >
-            {goalTypes.map((gt) => (
-              <option key={gt.value} value={gt.value}>{gt.label}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label={t('habits.form.goalTypeLabel')}
+          value={goalType}
+          onChange={(e) => setGoalType(e.target.value as GoalType)}
+        >
+          {goalTypeValues.map((value) => (
+            <option key={value} value={value}>
+              {t(`habits.goalTypes.${value.toLowerCase()}`)}
+            </option>
+          ))}
+        </Select>
 
-        <div>
-          <label className="rf-label block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {t('habits.form.goalValueLabel', { unit: goalType === 'Ratio' ? '(%)' : '(times)' })}
-          </label>
-          <input
-            type="number"
-            min={1}
-            max={goalType === 'Ratio' ? 100 : 999}
-            value={goalValue}
-            onChange={(e) => setGoalValue(parseInt(e.target.value) || 1)}
-            className="rf-input w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary"
-            style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)' }}
-          />
-        </div>
+        <Input
+          label={t('habits.form.goalValueLabel', { unit: goalType === 'Ratio' ? '(%)' : '(veces)' })}
+          type="number"
+          min={1}
+          max={goalType === 'Ratio' ? 100 : 999}
+          value={goalValue}
+          onChange={(e) => setGoalValue(parseInt(e.target.value) || 1)}
+        />
       </div>
 
       <div className="flex gap-2 pt-2">
-        <button
-          type="submit"
-          className="flex-1 px-4 py-2 btn-neon rounded-[8px] hover:bg-primary/90 transition-colors font-medium"
-          style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}
-        >
+        <Button type="submit" className="flex-1">
           {initialData ? t('habits.form.update') : t('habits.form.create')}
-        </button>
+        </Button>
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 btn-outline rounded-[8px] habit-cancel-btn transition-colors font-medium"
-            style={{ background: 'var(--color-bg-surface-hover)', color: 'var(--color-text-secondary)' }}
-          >
+          <Button type="button" variant="secondary" className="flex-1" onClick={onCancel}>
             {t('common.cancel')}
-          </button>
+          </Button>
         )}
       </div>
     </form>

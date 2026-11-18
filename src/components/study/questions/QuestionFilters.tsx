@@ -30,7 +30,7 @@ export default function QuestionFilters({
 
   return (
     <div className="mb-6 flex flex-wrap items-end gap-3">
-      <div className="flex min-w-[200px] flex-1 gap-2">
+      <div className="flex min-w-50 flex-1 gap-2">
         <div className="flex-1">
           <Input
             label={t('study.questions.searchLabel')}

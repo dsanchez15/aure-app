@@ -1,6 +1,6 @@
 'use client'
 
-import { Card } from '@/components/ui'
+import { Button, Card, EmptyState, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { HabitTracker } from '@/types/dashboard'
 
@@ -13,68 +13,68 @@ export default function HabitGrid({ habits, onMarkDone }: HabitGridProps) {
   const { t } = useAppTranslation()
 
   return (
-    <section>
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-secondary">
-        {t('dashboard.habitTrackers')}
-      </h3>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {habits.length === 0 && (
-          <Card className="col-span-full p-8 text-center">
-            <p className="text-sm text-text-muted">{t('dashboard.noHabits')}</p>
-          </Card>
-        )}
-        {habits.slice(0, 5).map((habit) => (
-          <div
+    <section className="flex flex-col gap-3">
+      <SectionHeader title={t('dashboard.habitTrackers')} />
+      {habits.length === 0 ? (
+        <EmptyState icon="routine" title={t('dashboard.noHabits')} />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      {habits.slice(0, 5).map((habit) => {
+        const done = habit.completedToday
+        return (
+          <Card
             key={habit.id}
-            className="dashboard-card rounded-[8px] border p-4 transition-all"
-            style={
-              habit.completedToday
-                ? {
-                    background: 'color-mix(in srgb, var(--color-success) 8%, transparent)',
-                    borderColor: 'color-mix(in srgb, var(--color-success) 30%, transparent)',
-                  }
-                : { background: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }
-            }
+            padding="md"
+            className={`flex flex-col gap-3 ${done ? 'border-success/30 bg-success/10' : ''}`}
           >
-            <div className="mb-3 flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-2">
               <div className="flex min-w-0 flex-1 items-center gap-2">
-                <span className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: habit.color }} />
-                <h4
-                  className="truncate text-sm font-semibold"
-                  style={{
-                    color: habit.completedToday ? 'var(--color-success)' : 'var(--color-text-primary)',
-                  }}
+                <span
+                  aria-hidden="true"
+                  className="h-3 w-3 shrink-0 rounded-pill"
+                  style={{ backgroundColor: habit.color }}
+                />
+                <h3
+                  className={`truncate font-label text-label-lg ${
+                    done ? 'text-success' : 'text-text-primary'
+                  }`}
                 >
                   {habit.title}
-                </h4>
+                </h3>
               </div>
-              {habit.completedToday && (
-                <span className="material-symbols-outlined text-lg text-success">check_circle</span>
+              {done && (
+                <span aria-hidden="true" className="material-symbols-outlined text-lg text-success">
+                  check_circle
+                </span>
               )}
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-text-muted">
+            <div className="flex items-end justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-label text-label-sm text-text-muted">
                   {habit.streak > 0 ? t('dashboard.streakDays', { count: habit.streak }) : t('dashboard.startStreak')}
                 </p>
-                <p className="mt-0.5 text-[10px] text-text-muted">
+                <p className="mt-0.5 truncate font-label text-label-sm text-text-muted">
                   {habit.goalType === 'Daily'
                     ? t('dashboard.dailyGoal')
                     : t('dashboard.goalFormat', { value: habit.goalValue, type: habit.goalType.toLowerCase() })}
                 </p>
               </div>
-              {!habit.completedToday && (
-                <button
+              {!done && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="shrink-0 border-success/40 text-success hover:bg-success/10"
                   onClick={() => onMarkDone(habit.id)}
-                  className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110"
                 >
                   {t('dashboard.markDone')}
-                </button>
+                </Button>
               )}
             </div>
-          </div>
-        ))}
-      </div>
+          </Card>
+        )
+      })}
+        </div>
+      )}
     </section>
   )
 }

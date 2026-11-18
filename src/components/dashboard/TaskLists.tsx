@@ -1,6 +1,6 @@
 'use client'
 
-import { Card } from '@/components/ui'
+import { Button, Card, SectionHeader } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import type { DashboardChecklistItem, DashboardTodo } from '@/types/dashboard'
 
@@ -10,17 +10,6 @@ interface TaskListsProps {
   showChecklists?: boolean
   onMarkChecklistItemDone: (checklistId: number, itemId: number) => void
   onMarkTodoDone: (id: number) => void
-}
-
-function DoneButton({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className="whitespace-nowrap rounded-lg bg-primary/10 px-2 py-1 text-xs text-primary hover:bg-primary/20"
-    >
-      {label}
-    </button>
-  )
 }
 
 export default function TaskLists({
@@ -33,66 +22,91 @@ export default function TaskLists({
   const { t } = useAppTranslation()
 
   return (
-    <section>
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-secondary">
-        {showChecklists ? t('dashboard.checklistsAndTodos') : t('dashboard.todos')}
-      </h3>
+    <section className="flex flex-col gap-3">
+      <SectionHeader title={showChecklists ? t('dashboard.checklistsAndTodos') : t('dashboard.todos')} />
       <div className={`grid grid-cols-1 gap-4 ${showChecklists ? 'lg:grid-cols-2' : ''}`}>
-        {/* Checklists */}
         {showChecklists && (
-        <Card className="dashboard-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h4 className="card-title flex items-center gap-2 font-semibold text-text-primary">
-              <span className="h-2 w-2 rounded-full bg-warning" />
-              {t('dashboard.checklists')}
-            </h4>
-            <span className="text-xs text-text-muted">{t('dashboard.pendingCount', { count: checklists.length })}</span>
-          </div>
-          <div className="max-h-[280px] space-y-2 overflow-y-auto">
-            {checklists.length === 0 && (
-              <p className="py-4 text-center text-sm text-text-muted">{t('dashboard.noPendingChecklists')}</p>
-            )}
-            {checklists.map((item) => (
-              <div key={`cl-${item.id}`} className="flex items-center gap-3 rounded-[8px] border border-border p-3">
-                <span className="h-2 w-2 flex-shrink-0 rounded-full" style={{ backgroundColor: item.checklistColor }} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-text-primary">{item.title}</p>
-                  <p className="text-xs text-text-muted">
-                    {item.checklistTitle} · {item.priority}
-                  </p>
+          <Card padding="lg" className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="flex items-center gap-2 font-display text-title-md text-text-primary">
+                <span aria-hidden="true" className="h-2 w-2 rounded-pill bg-warning" />
+                {t('dashboard.checklists')}
+              </h3>
+              <span className="font-label text-label-sm text-text-muted">
+                {t('dashboard.pendingCount', { count: checklists.length })}
+              </span>
+            </div>
+            <div className="max-h-72 space-y-2 overflow-y-auto">
+              {checklists.length === 0 && (
+                <p className="py-4 text-center font-body text-body-md text-text-muted">
+                  {t('dashboard.noPendingChecklists')}
+                </p>
+              )}
+              {checklists.map((item) => (
+                <div
+                  key={`cl-${item.id}`}
+                  className="flex items-center gap-3 rounded-control border border-border p-3"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 shrink-0 rounded-pill"
+                    style={{ backgroundColor: item.checklistColor }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-label text-label-lg text-text-primary">{item.title}</p>
+                    <p className="truncate font-label text-label-sm text-text-muted">
+                      {item.checklistTitle} · {item.priority}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="shrink-0 text-primary"
+                    onClick={() => onMarkChecklistItemDone(item.checklistId, item.id)}
+                  >
+                    {t('common.done')}
+                  </Button>
                 </div>
-                <DoneButton onClick={() => onMarkChecklistItemDone(item.checklistId, item.id)} label={t('common.done')} />
-              </div>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
         )}
 
-        {/* ToDos */}
-        <Card className="dashboard-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h4 className="card-title flex items-center gap-2 font-semibold text-text-primary">
-              <span className="h-2 w-2 rounded-full bg-danger" />
+        <Card padding="lg" className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="flex items-center gap-2 font-display text-title-md text-text-primary">
+              <span aria-hidden="true" className="h-2 w-2 rounded-pill bg-danger" />
               {t('dashboard.todos')}
-            </h4>
-            <span className="text-xs text-text-muted">{t('dashboard.pendingCount', { count: todos.length })}</span>
+            </h3>
+            <span className="font-label text-label-sm text-text-muted">
+              {t('dashboard.pendingCount', { count: todos.length })}
+            </span>
           </div>
-          <div className="max-h-[280px] space-y-2 overflow-y-auto">
+          <div className="max-h-72 space-y-2 overflow-y-auto">
             {todos.length === 0 && (
-              <p className="py-4 text-center text-sm text-text-muted">{t('dashboard.noPendingTodos')}</p>
+              <p className="py-4 text-center font-body text-body-md text-text-muted">
+                {t('dashboard.noPendingTodos')}
+              </p>
             )}
             {todos.map((todo) => (
-              <div key={`td-${todo.id}`} className="flex items-center gap-3 rounded-[8px] border border-border p-3">
-                <span className="h-2 w-2 flex-shrink-0 rounded-full bg-danger" />
+              <div key={`td-${todo.id}`} className="flex items-center gap-3 rounded-control border border-border p-3">
+                <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-pill bg-danger" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-text-primary">{todo.title}</p>
-                  <p className="text-xs text-text-muted">
+                  <p className="truncate font-label text-label-lg text-text-primary">{todo.title}</p>
+                  <p className="truncate font-label text-label-sm text-text-muted">
                     {todo.dueDate && `${todo.dueDate} · `}
                     {todo.priority}
                     {todo.category?.name && ` · ${todo.category.name}`}
                   </p>
                 </div>
-                <DoneButton onClick={() => onMarkTodoDone(todo.id)} label={t('common.done')} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 text-primary"
+                  onClick={() => onMarkTodoDone(todo.id)}
+                >
+                  {t('common.done')}
+                </Button>
               </div>
             ))}
           </div>

@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { Button, EmptyState, Input, Select } from '@/components/ui'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { Button, EmptyState, Input, SegmentedControl } from '@/components/ui'
+import { FilterBar, FilterField, FilterSelect } from '@/components/patterns'
+import { PageHeader } from '@/components/layout'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import ChecklistCard from './ChecklistCard'
 import ExpandedItems from './ExpandedItems'
@@ -77,6 +79,43 @@ export default function ChecklistList({
 }: Props) {
   const { t } = useAppTranslation()
   const [undoChecklist, setUndoChecklist] = useState<{ checklist: Checklist; timer: NodeJS.Timeout } | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const hydrated = useRef(false)
+
+  // Los filtros sobreviven a un refresh dentro de la sesión del navegador.
+  useEffect(() => {
+    try {
+      const raw = window.sessionStorage.getItem('aure-checklist-filters')
+      if (raw) {
+        const stored = JSON.parse(raw) as {
+          search?: string
+          filter?: ChecklistFilter
+          categoryFilter?: number | null
+          sort?: SortOption
+        }
+        if (typeof stored.search === 'string') onSearchChange(stored.search)
+        if (stored.filter) onFilterChange(stored.filter)
+        if (stored.categoryFilter !== undefined) onCategoryFilterChange(stored.categoryFilter)
+        if (stored.sort) onSortChange(stored.sort)
+      }
+    } catch {
+      // Sin persistencia si el navegador la bloquea.
+    }
+    hydrated.current = true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (!hydrated.current) return
+    try {
+      window.sessionStorage.setItem(
+        'aure-checklist-filters',
+        JSON.stringify({ search, filter, categoryFilter, sort })
+      )
+    } catch {
+      // Sin persistencia si el navegador la bloquea.
+    }
+  }, [search, filter, categoryFilter, sort])
 
   const handleDelete = (id: number) => {
     const cl = checklists.find((c) => c.id === id)
@@ -152,101 +191,114 @@ export default function ChecklistList({
         ? t('checklists.archiveHint')
         : t('checklists.createHint')
 
+  const activeChips: string[] = []
+  if (search) activeChips.push(`“${search}”`)
+  if (tab === 'active' && filter !== 'all') {
+    activeChips.push(filterOptions.find((option) => option.value === filter)?.label ?? filter)
+  }
+  if (tab === 'active' && categoryFilter) {
+    const category = categories.find((cat) => cat.id === categoryFilter)
+    if (category) activeChips.push(category.name)
+  }
+  if (tab === 'active' && sort !== 'newest') {
+    activeChips.push(sortOptions.find((option) => option.value === sort)?.label ?? sort)
+  }
+
+  const clearAllFilters = () => {
+    onSearchChange('')
+    onFilterChange('all')
+    onCategoryFilterChange(null)
+    onSortChange('newest')
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-text-primary">{t('checklists.title')}</h2>
-          <p className="mt-1 text-text-muted">{t('checklists.checklistCount', { count: checklists.length })}</p>
-        </div>
-        <Button onClick={onNew}>
-          <span className="material-symbols-outlined text-sm">add</span>
-          {t('checklists.newChecklist')}
-        </Button>
-      </div>
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        title={t('checklists.title')}
+        actions={
+          <Button onClick={onNew}>
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">
+              add
+            </span>
+            {t('checklists.newChecklist')}
+          </Button>
+        }
+      />
 
-      {/* Tabs */}
-      <div className="checklist-tabs flex gap-1 border-b border-border pb-1">
-        {tabLabels.map((tabItem) => (
-          <button
-            key={tabItem.value}
-            onClick={() => onTabChange(tabItem.value)}
-            data-active={tab === tabItem.value}
-            className={`rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
-              tab === tabItem.value
-                ? 'border-b-2 border-primary bg-primary/5 text-primary'
-                : 'checklist-tab-inactive text-text-muted'
-            }`}
-          >
-            {tabItem.label}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<ChecklistTab>
+        ariaLabel={t('checklists.title')}
+        options={tabLabels}
+        value={tab}
+        onChange={onTabChange}
+      />
 
-      {/* Search */}
-      <div className="relative">
-        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">
-          search
-        </span>
-        <Input
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={t('checklists.searchPlaceholder')}
-          aria-label={t('checklists.searchPlaceholder')}
-          className="pl-10"
-        />
-      </div>
-
-      {/* Filters + Sort */}
-      {tab === 'active' && (
-        <div className="flex flex-wrap items-center gap-2">
-          {filterOptions.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => onFilterChange(f.value)}
-              className={`checklist-filter-btn rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                filter === f.value
-                  ? 'checklist-filter-btn-active bg-primary text-white'
-                  : 'checklist-filter-btn-inactive bg-bg-surface-hover text-text-secondary'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-          {categories.length > 0 && (
-            <Select
+      <FilterBar
+        isOpen={filtersOpen}
+        onToggle={() => setFiltersOpen((open) => !open)}
+        onClear={clearAllFilters}
+        active={activeChips}
+        summary={t('checklists.checklistCount', { count: filtered.length })}
+      >
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          <FilterField label={t('common.search')} className="sm:col-span-2 xl:col-span-3">
+            <Input
+              leadingIcon="search"
               fieldSize="sm"
-              value={categoryFilter ?? ''}
-              onChange={(e) => onCategoryFilterChange(e.target.value ? parseInt(e.target.value) : null)}
-              aria-label={t('common.all')}
-              className="w-auto border-0 bg-bg-surface-hover text-text-secondary"
-            >
-              <option value="">{t('common.all')}</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </Select>
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder={t('checklists.searchPlaceholder')}
+              aria-label={t('checklists.searchPlaceholder')}
+              className="h-7 py-0 pr-8"
+            />
+          </FilterField>
+
+          {tab === 'active' && (
+            <>
+              <FilterField label={t('common.filter')}>
+                <SegmentedControl<ChecklistFilter>
+                  ariaLabel={t('common.filter')}
+                  size="xs"
+                  fullWidth
+                  options={filterOptions}
+                  value={filter}
+                  onChange={onFilterChange}
+                />
+              </FilterField>
+
+              <FilterField label={t('common.sortBy')}>
+                <FilterSelect
+                  label={t('common.sortBy')}
+                  value={sort}
+                  onChange={(value) => onSortChange(value as SortOption)}
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </FilterSelect>
+              </FilterField>
+
+              {categories.length > 0 && (
+                <FilterField label={t('common.category')}>
+                  <FilterSelect
+                    label={t('common.category')}
+                    value={categoryFilter !== null ? String(categoryFilter) : ''}
+                    onChange={(value) => onCategoryFilterChange(value ? parseInt(value) : null)}
+                  >
+                    <option value="">{t('common.all')}</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </FilterSelect>
+                </FilterField>
+              )}
+            </>
           )}
-          <div className="ml-auto flex items-center gap-1">
-            <span className="material-symbols-outlined text-xs text-text-muted">sort</span>
-            <Select
-              fieldSize="sm"
-              value={sort}
-              onChange={(e) => onSortChange(e.target.value as SortOption)}
-              aria-label={t('checklists.sort.newest')}
-              className="w-auto border-0 bg-bg-surface-hover text-text-secondary"
-            >
-              {sortOptions.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </Select>
-          </div>
         </div>
-      )}
+      </FilterBar>
 
       {/* List */}
       {filtered.length === 0 ? (

@@ -6,6 +6,7 @@ import ChecklistList, { type SortOption } from '@/components/checklist/Checklist
 import ChecklistForm from '@/components/ChecklistForm'
 import CategoryManager from '@/components/CategoryManager'
 import Toast from '@/components/Toast'
+import { Spinner } from '@/components/ui'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { Checklist, ChecklistCategory, ChecklistFilter, ChecklistFormData, ChecklistItem, Priority, ChecklistTab } from '@/types/checklist'
 
@@ -192,8 +193,8 @@ export default function ChecklistsPage() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        <div className="flex min-h-96 items-center justify-center">
+          <Spinner size="lg" />
         </div>
       </AppLayout>
     )

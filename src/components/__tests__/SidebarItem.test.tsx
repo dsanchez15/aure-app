@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import SidebarItem from '@/components/SidebarItem'
+import SidebarItem from '@/components/layout/SidebarItem'
 
 vi.mock('next/link', () => ({
   default: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
@@ -9,39 +9,39 @@ vi.mock('next/link', () => ({
 }))
 
 describe('SidebarItem', () => {
-  it('renders with label when expanded', () => {
+  it('renders label when expanded', () => {
     render(
-      <SidebarItem href="/dashboard" icon="dashboard" label="Dashboard" isExpanded={true} isActive={false} />
+      <SidebarItem href="/dashboard" icon="grid_view" label="Panel" isExpanded={true} isActive={false} />
     )
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(screen.getByText('Panel')).toBeInTheDocument()
   })
 
-  it('hides label text when collapsed', () => {
-    const { container } = render(
-      <SidebarItem href="/dashboard" icon="dashboard" label="Dashboard" isExpanded={false} isActive={false} />
-    )
-    const textSpan = container.querySelector('.opacity-0.w-0')
-    expect(textSpan).toBeInTheDocument()
-    expect(textSpan).toHaveTextContent('Dashboard')
-  })
-
-  it('applies active class when active', () => {
+  it('keeps an accessible name when collapsed and hides the text', () => {
     render(
-      <SidebarItem href="/dashboard" icon="dashboard" label="Dashboard" isExpanded={true} isActive={true} />
+      <SidebarItem href="/dashboard" icon="grid_view" label="Panel" isExpanded={false} isActive={false} />
     )
-    const link = screen.getByRole('link')
-    expect(link.className).toContain('active')
+    expect(screen.getByRole('link', { name: 'Panel' })).toBeInTheDocument()
+    expect(screen.queryByText('Panel')).not.toBeInTheDocument()
   })
 
-  it('does not apply active class when inactive', () => {
+  it('marks the active destination with aria-current', () => {
     render(
-      <SidebarItem href="/todos" icon="check_circle" label="Todos" isExpanded={true} isActive={false} />
+      <SidebarItem href="/dashboard" icon="grid_view" label="Panel" isExpanded={true} isActive={true} />
     )
-    const link = screen.getByRole('link')
-    expect(link.className).not.toContain('active')
+    const link = screen.getByRole('link', { name: 'Panel' })
+    expect(link).toHaveAttribute('aria-current', 'page')
+    expect(link.className).toContain('bg-sidebar-item-active-bg')
+    expect(link.className).toContain('text-sidebar-item-active-text')
   })
 
-  it('renders badge when provided', () => {
+  it('does not mark inactive destinations', () => {
+    render(<SidebarItem href="/todos" icon="check_circle" label="Tareas" isExpanded={true} isActive={false} />)
+    const link = screen.getByRole('link', { name: 'Tareas' })
+    expect(link).not.toHaveAttribute('aria-current')
+    expect(link.className).not.toContain('bg-sidebar-item-active-bg')
+  })
+
+  it('renders the badge when expanded', () => {
     render(
       <SidebarItem
         href="/checklists"
@@ -55,80 +55,49 @@ describe('SidebarItem', () => {
     expect(screen.getByTestId('badge')).toBeInTheDocument()
   })
 
-  it('renders sub-item variant with tree connector when expanded', () => {
-    const { container } = render(
+  it('hides the badge in the collapsed rail', () => {
+    render(
       <SidebarItem
-        href="/goals"
-        icon="flag"
-        label="Goals"
-        isExpanded={true}
-        isActive={false}
-        variant="sub"
-      />
-    )
-    const branch = container.querySelector('.h-\\[2px\\]')
-    expect(branch).toBeInTheDocument()
-  })
-
-  it('renders sub-item as top-level style when collapsed', () => {
-    const { container } = render(
-      <SidebarItem
-        href="/goals"
-        icon="flag"
-        label="Goals"
+        href="/checklists"
+        icon="fact_check"
+        label="Checklists"
         isExpanded={false}
         isActive={false}
-        variant="sub"
+        badge={<span data-testid="badge">3</span>}
       />
     )
-    expect(container.querySelector('.h-\\[2px\\]')).toBeNull()
-    const link = screen.getByRole('link')
-    expect(link.className).toContain('gap-4')
+    expect(screen.queryByTestId('badge')).not.toBeInTheDocument()
   })
 
-  it('uses muted text color for inactive sub-items', () => {
+  it('renders the sub-item variant with the indented style', () => {
     render(
-      <SidebarItem
-        href="/goals"
-        icon="flag"
-        label="Goals"
-        isExpanded={true}
-        isActive={false}
-        variant="sub"
-      />
+      <SidebarItem href="/goals" icon="flag" label="Objetivos" isExpanded={true} isActive={false} variant="sub" />
     )
-    const link = screen.getByRole('link')
-    expect(link.className).toContain('text-[var(--color-text-muted)]')
+    const link = screen.getByRole('link', { name: 'Objetivos' })
+    expect(link.className).toContain('pl-2')
+    expect(link.className).toContain('text-text-muted')
   })
 
-  it('uses primary color for active sub-items', () => {
+  it('renders sub-items as icons when collapsed (rail)', () => {
     render(
-      <SidebarItem
-        href="/goals"
-        icon="flag"
-        label="Goals"
-        isExpanded={true}
-        isActive={true}
-        variant="sub"
-      />
+      <SidebarItem href="/goals" icon="flag" label="Objetivos" isExpanded={false} isActive={false} variant="sub" />
     )
-    const link = screen.getByRole('link')
-    expect(link.className).toContain('text-[var(--color-primary)]')
+    const link = screen.getByRole('link', { name: 'Objetivos' })
+    expect(link.className).toContain('justify-center')
   })
 
-  it('renders icon with -ml-1.5 offset', () => {
+  it('renders the icon as decorative', () => {
     const { container } = render(
-      <SidebarItem href="/dashboard" icon="dashboard" label="Dashboard" isExpanded={true} isActive={false} />
+      <SidebarItem href="/dashboard" icon="grid_view" label="Panel" isExpanded={true} isActive={false} />
     )
     const icon = container.querySelector('.material-symbols-outlined')
-    expect(icon?.className).toContain('-ml-1.5')
+    expect(icon).toHaveAttribute('aria-hidden', 'true')
   })
 
   it('renders href correctly', () => {
     render(
-      <SidebarItem href="/reminders" icon="notifications_active" label="Reminders" isExpanded={true} isActive={false} />
+      <SidebarItem href="/reminders" icon="notifications" label="Recordatorios" isExpanded={true} isActive={false} />
     )
-    const link = screen.getByRole('link')
-    expect(link).toHaveAttribute('href', '/reminders')
+    expect(screen.getByRole('link', { name: 'Recordatorios' })).toHaveAttribute('href', '/reminders')
   })
 })

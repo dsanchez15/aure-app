@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '@/components/AppLayout';
 import Toast from '@/components/Toast';
+import { PageHeader } from '@/components/layout';
 import { useAppTranslation } from '@/components/LanguageProvider';
 import { apiClient, ApiError } from '@/lib/api-client';
 import { SettingsStore } from '@/lib/study/settings-store';
@@ -205,7 +206,6 @@ export default function SettingsPage() {
     const handleSave = async () => {
         try {
             localStorage.setItem('app-theme', theme);
-            localStorage.setItem('app-visual-theme', 'classic');
             localStorage.setItem('app-language', selectedLang);
             localStorage.setItem('dashboard-card-limit', cardLimit.toString());
             await SettingsStore.updateSettings(studySettings);
@@ -242,15 +242,11 @@ export default function SettingsPage() {
                     <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
                 )}
 
-                <header className="flex items-center justify-between bg-transparent p-6 lg:px-10">
-                    <div>
-                        <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
-                        <p className="text-sm text-text-muted">{t('settings.subtitle')}</p>
+                <div className="px-6 pt-6 lg:px-10">
+                    <PageHeader title={t('settings.title')} description={t('settings.subtitle')} />
+                    <div className="mt-6">
+                        <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
                     </div>
-                </header>
-
-                <div className="px-6 pb-4 lg:px-10">
-                    <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
                 </div>
 
                 <div className="custom-scrollbar flex-1 overflow-y-auto px-6 pb-32 lg:px-10">

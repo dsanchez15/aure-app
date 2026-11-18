@@ -1,5 +1,7 @@
 'use client'
 
+import { Card } from '@/components/ui'
+
 interface StatCardProps {
   label: string
   value: string | number
@@ -9,21 +11,21 @@ interface StatCardProps {
 
 export default function StatCard({ label, value, sublabel, icon }: StatCardProps) {
   return (
-    <div className="rounded-xl p-4 text-center" style={{ background: 'var(--color-bg-input)' }}>
-      <div className="flex items-center justify-center mb-2">
+    <Card padding="md" className="text-center">
+      <div className="mb-2 flex items-center justify-center">
         {icon}
       </div>
-      <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+      <p className="font-mono text-headline-md text-text-primary">
         {value}
       </p>
-      <p className="text-xs uppercase mt-1" style={{ color: 'var(--color-text-muted)' }}>
+      <p className="mt-1 font-label text-label-md uppercase text-text-muted">
         {label}
       </p>
       {sublabel && (
-        <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="mt-0.5 font-body text-label-md text-text-muted">
           {sublabel}
         </p>
       )}
-    </div>
+    </Card>
   )
 }

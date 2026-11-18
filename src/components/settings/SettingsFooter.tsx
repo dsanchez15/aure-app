@@ -13,19 +13,23 @@ export default function SettingsFooter({ isDirty, onSave, onDiscard }: SettingsF
   const { t } = useAppTranslation()
 
   return (
-    <footer
-      className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-between border-t border-primary/10 p-4 backdrop-blur-md lg:left-64 lg:px-10"
-      style={{ background: 'color-mix(in srgb, var(--color-bg-surface) 80%, transparent)' }}
-    >
-      <p className={`text-sm italic text-text-muted ${isDirty ? 'opacity-100' : 'opacity-0'}`}>
+    <footer className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-between gap-4 border-t border-border bg-bg-surface/80 p-4 pb-safe backdrop-blur-md lg:left-60 lg:px-10">
+      <p
+        role="status"
+        className={`font-label text-label-md italic text-text-muted transition-opacity ${
+          isDirty ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
         {t('settings.unsavedChanges')}
       </p>
       <div className="ml-auto flex gap-3">
-        <Button variant="secondary" onClick={onDiscard} className="border border-border px-6">
+        <Button variant="secondary" onClick={onDiscard}>
           {t('settings.discard')}
         </Button>
-        <Button onClick={onSave} className="px-8 font-semibold shadow-lg shadow-primary/20">
-          <span className="material-symbols-outlined text-sm">save</span>
+        <Button onClick={onSave}>
+          <span aria-hidden="true" className="material-symbols-outlined text-lg">
+            save
+          </span>
           {t('settings.saveChanges')}
         </Button>
       </div>

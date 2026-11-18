@@ -158,7 +158,7 @@ export default function GoalEditForm({ goal, phases, saving, onSave, onCancel }:
           <button
             type="button"
             onClick={addMilestone}
-            className="rounded-[8px] border border-dashed border-border px-3 py-1 text-sm text-text-secondary"
+            className="rounded-control border border-dashed border-border px-3 py-1 text-sm text-text-secondary"
           >
             {t('goals.addMilestone')}
           </button>
@@ -188,7 +188,7 @@ export default function GoalEditForm({ goal, phases, saving, onSave, onCancel }:
                   type="button"
                   onClick={() => removeMilestone(i)}
                   aria-label={t('common.delete')}
-                  className="rounded-[8px] p-2 text-danger hover:bg-danger/10"
+                  className="rounded-control p-2 text-danger hover:bg-danger/10"
                 >
                   ✕
                 </button>
