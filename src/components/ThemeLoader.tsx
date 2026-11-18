@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
+/**
+ * Aplica el tema del usuario sin bloquear el render: los hijos se pintan
+ * siempre (el HTML ya sale con `data-visual-theme="focus"` desde el layout).
+ */
 export default function ThemeLoader({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false);
-
   useEffect(() => {
     const loadTheme = async () => {
       try {
@@ -32,23 +34,16 @@ export default function ThemeLoader({ children }: { children: React.ReactNode })
           }
         }
 
-        // Tema visual: Focus es el único tema desde Ola 5. Se ignora cualquier
-        // valor previo en localStorage o en el perfil.
+        // Tema visual: Focus es el único tema desde Ola 5.
         localStorage.setItem('app-visual-theme', 'focus');
-        const root = document.documentElement;
-        root.setAttribute('data-visual-theme', 'focus');
+        document.documentElement.setAttribute('data-visual-theme', 'focus');
       } catch (error) {
         console.error('Failed to load theme:', error);
       }
-      setReady(true);
     };
 
     loadTheme();
   }, []);
-
-  if (!ready) {
-    return null;
-  }
 
   return <>{children}</>;
 }
