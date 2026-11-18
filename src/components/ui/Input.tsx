@@ -1,9 +1,9 @@
 import { InputHTMLAttributes, forwardRef, useId } from 'react'
 import { Field, type FieldProps } from './Field'
-import { fieldControlBase, fieldSizeClasses, type FieldSize } from './fieldStyles'
+import { fieldControlBase, fieldSizeClasses, fieldWidth, type FieldSize } from './fieldStyles'
 
 export { FieldWrapper, type FieldWrapperProps } from './Field'
-export { fieldControlBase, fieldSizeClasses, type FieldSize }
+export { fieldControlBase, fieldSizeClasses, fieldWidth, type FieldSize }
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 ) {
   const autoId = useId()
   const inputId = id ?? autoId
-  const classes = `${fieldControlBase} ${fieldSizeClasses[fieldSize]} ${leadingIcon ? 'pl-10' : ''} ${className}`
+  const classes = `${fieldControlBase} ${fieldWidth(className)} ${fieldSizeClasses[fieldSize]} ${leadingIcon ? 'pl-10' : ''} ${className}`
 
   const control = (
     <input

@@ -5,6 +5,7 @@ import AppLayout from '@/components/AppLayout'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useDashboardData } from '@/hooks/useDashboardData'
 import { useFeatureFlags } from '@/hooks/useFeatureFlags'
+import { MetricCard } from '@/components/ui'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import HabitGrid from '@/components/dashboard/HabitGrid'
 import PerformanceSection from '@/components/dashboard/PerformanceSection'
@@ -12,8 +13,8 @@ import WeeklyCompliance from '@/components/dashboard/WeeklyCompliance'
 import TaskLists from '@/components/dashboard/TaskLists'
 import QuickRegisterForm from '@/components/dashboard/QuickRegisterForm'
 import DashboardCalendar from '@/components/dashboard/DashboardCalendar'
-import Scorecard from '@/components/dashboard/Scorecard'
 import UpcomingReminders from '@/components/dashboard/UpcomingReminders'
+import TodoStatsCard from '@/components/dashboard/TodoStatsCard'
 
 export default function DashboardPage() {
   const { t } = useAppTranslation()
@@ -77,6 +78,17 @@ export default function DashboardPage() {
           onNext={goNext}
         />
 
+        <section aria-label={t('dashboard.scorecard')} className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <MetricCard label={t('dashboard.pendingTasks')} value={metrics?.pendingTasks ?? 0} tone="warning" />
+          <MetricCard label={t('dashboard.activeProjects')} value={metrics?.activeProjects ?? 0} tone="success" />
+          <MetricCard label={t('dashboard.dayStreak')} value={metrics?.overallStreak ?? 0} tone="primary" />
+          <MetricCard
+            label={t('dashboard.complianceLabel')}
+            value={`${metrics?.weeklyCompliance ?? 0}%`}
+            tone="primary"
+          />
+        </section>
+
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* ═══ MAIN CONTENT ═══ */}
           <main className="flex-1 space-y-8">
@@ -101,7 +113,6 @@ export default function DashboardPage() {
             {flags.habits && (
               <div>
                 <HabitGrid habits={habits} onMarkDone={markHabitDone} />
-                <WeeklyCompliance metrics={metrics} />
               </div>
             )}
 
@@ -129,7 +140,8 @@ export default function DashboardPage() {
 
           {/* ═══ RIGHT SIDEBAR ═══ */}
           <aside className="w-full space-y-6 lg:w-80">
-            <Scorecard metrics={metrics} />
+            <TodoStatsCard />
+            {flags.habits && <WeeklyCompliance metrics={metrics} />}
             {flags.reminders && (
               <UpcomingReminders reminders={upcomingReminders} onMarkDone={markReminderDone} />
             )}

@@ -17,7 +17,7 @@ export interface SidebarItemProps {
 }
 
 const itemBase =
-  'group flex items-center rounded-control font-label text-label-lg transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
+  'group flex items-center rounded-control font-body text-label-lg transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
 const itemState = (isActive: boolean) =>
   isActive

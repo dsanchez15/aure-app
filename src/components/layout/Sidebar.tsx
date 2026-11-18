@@ -72,7 +72,7 @@ export default function Sidebar({ returnFocusRef }: SidebarProps) {
       <aside
         ref={sidebarRef}
         id="main-sidebar"
-        className={`fixed inset-y-0 left-0 z-40 flex h-full flex-col border-r border-sidebar-border bg-sidebar-bg px-4 py-6 transition-surface motion-reduce:transition-none ${widthClass} ${
+        className={`fixed inset-y-0 left-0 z-40 flex h-full flex-col border-r border-sidebar-border bg-sidebar-bg px-4 py-6 font-body transition-surface motion-reduce:transition-none ${widthClass} ${
           isMobileOverlayOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >

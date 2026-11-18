@@ -121,7 +121,7 @@ Todas se exportan desde `@/components/ui` y se muestran viven en `/styleguide`.
 | `PasswordInput` | hereda de `Input` (sin `type`/`leadingIcon`); visor con `aria-pressed` |
 | `Checkbox` | `label` · `description` · props nativas del input |
 | `Toggle` | `checked` · `onChange` · `label` · `description` · `disabled` · `ariaLabel` |
-| `SegmentedControl` | `options[{value,label,disabled}]` · `value` · `onChange` · `ariaLabel` · `size` · `fullWidth` |
+| `SegmentedControl` | `options[{value,label,disabled}]` · `value` · `onChange` · `ariaLabel` · `size: xs \| sm \| md` · `fullWidth` |
 | `Modal` | `isOpen` · `onClose` · `title` · `footer` · `maxWidth: sm…2xl` |
 | `Drawer` | `isOpen` · `onClose` · `title` · `footer` · `side: right \| left` |
 | `Badge` | `variant: primary \| success \| warning \| danger \| info \| neutral` |
@@ -139,6 +139,8 @@ Reglas de composición:
 - `Modal` para formularios cortos y confirmaciones; `Drawer` para detalle/edición de una entidad (tareas, recordatorios).
 - `SectionHeader` es el único título permitido dentro de una tarjeta.
 - Los controles de formulario comparten `ui/fieldStyles.ts` (`fieldControlBase` + `fieldSizeClasses`): un cambio visual en un control aplica a Input, Select, Textarea y PasswordInput.
+- `Select`/`Input`/`Textarea` respetan el ancho del consumidor: si el `className` incluye `w-*` o `basis-*`, no se fuerza `w-full` (`fieldWidth()`).
+- Los desplegables nativos se estilizan globalmente: `accent-color`, `select option` y `color-scheme: dark` toman tokens, así el resaltado y el fondo siguen el tema.
 
 ### Pantallas del piloto (Ola 3)
 
@@ -146,9 +148,28 @@ Reglas de composición:
 |---|---|
 | Login | `BrandMark size="lg"` + `Card` centrada + `Input leadingIcon` + `PasswordInput` + `Button size="lg" fullWidth`; enlace de modo con `Button`/texto primary |
 | Panel | `PageHeader` + `SegmentedControl` (mes/semana) + `SectionHeader` en tarjetas + `MetricCard` para métricas |
-| Tareas | `PageHeader` con acción, barra de creación inline en `Card`, `SegmentedControl` para vistas, detalle con `MetaGrid` en columna `xl:w-72` |
+| Tareas | `PageHeader` + barra de creación, filtros en dos niveles (patrón abajo), detalle en `Drawer` con `MetaGrid`; estadísticas en el Panel (`TodoStatsCard`) |
 | Recordatorios | `PageHeader` + `SegmentedControl` (pendientes/todos/completados) + filas tokenizadas |
 | Ajustes | `PageHeader` + tabs con `font-label` + `SettingCard` sobre `Card` + `SectionHeader` por sección |
+
+### Patrón: barra de filtros (Ola 5)
+
+Referencia implementada en `components/todo/TodoFilters.tsx`; es la plantilla para Recordatorios, Checklists e Hitos.
+
+**Barra (panel cerrado)**
+- Izquierda: `Button` secundario **Filtros** + `Badge` con los filtros activos (solo los que difieren del default) + **Limpiar filtros**.
+- Derecha: resumen `font-mono text-label-sm` con `aria-live="polite"`, calculado sobre la lista ya filtrada.
+- El panel permanece abierto mientras el usuario aplica filtros: su estado vive en la página, no en el componente de filtros.
+
+**Panel (abierto)**
+- Nivel 1: Vista · Orden · Búsqueda, en fila flexible; Vista y Orden toman su ancho natural y la búsqueda absorbe el resto (`flex-1`, mínimo 208 px).
+- Nivel 2: Group by · Prioridad · Estado · Categoría, en rejilla `1 / sm:2 / xl:4`.
+- Cada filtro lleva etiqueta mono 11 px con `px-1` y `gap-1` respecto al control.
+- Controles con `SegmentedControl size="xs"` (28 px); `fullWidth` solo en la rejilla del nivel 2.
+- Selects nativos (categoría) dentro de un chip `h-7` con borde, superficie y foco tokenizados.
+
+**Persistencia**
+- Tareas guarda los filtros en `sessionStorage` (`aure-todo-filters`); sobreviven a refresh dentro de la sesión y vuelven al default en una pestaña nueva.
 
 ### Layout (`layout/`)
 
@@ -177,6 +198,7 @@ Los módulos antiguos (`components/AppLayout.tsx`, `components/Sidebar*.tsx`, `c
 | Componente | Ola | Estado |
 |---|---|---|
 | InlineCreateBar, Toolbar, ListRow | 2–3 | falta |
+| FilterBar (dos niveles, chips activos, resumen vivo) | 5 | referencia en Tareas; pendiente de extraer a `patterns/` |
 | ListPage, DetailPage, FormPage, SettingsPage, AuthShell | 3 | falta |
 
 ### Gráficas (`ui/charts`, Ola 4)

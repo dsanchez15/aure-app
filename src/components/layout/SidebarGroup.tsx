@@ -61,7 +61,7 @@ const SidebarGroup = memo(function SidebarGroup({
         onClick={onToggle}
         aria-expanded={groupExpanded}
         aria-controls={panelId}
-        className={`flex w-full items-center gap-2.5 rounded-control px-3 py-2.5 font-label text-label-lg transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+        className={`flex w-full items-center gap-2.5 rounded-control px-3 py-2.5 font-body text-label-lg transition-state focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
           isActive
             ? 'font-medium text-primary'
             : 'text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary'

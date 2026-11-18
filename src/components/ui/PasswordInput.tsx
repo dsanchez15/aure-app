@@ -2,7 +2,7 @@
 
 import { forwardRef, useId, useState } from 'react'
 import { Field } from './Field'
-import { fieldControlBase, fieldSizeClasses, type FieldSize } from './fieldStyles'
+import { fieldControlBase, fieldSizeClasses, fieldWidth, type FieldSize } from './fieldStyles'
 
 export interface PasswordInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
@@ -39,7 +39,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           type={visible ? 'text' : 'password'}
           autoComplete={autoComplete ?? 'current-password'}
           aria-invalid={error ? true : undefined}
-          className={`${fieldControlBase} ${fieldSizeClasses[fieldSize]} pl-10 pr-11 ${className}`}
+          className={`${fieldControlBase} ${fieldWidth(className)} ${fieldSizeClasses[fieldSize]} pl-10 pr-11 ${className}`}
           {...props}
         />
         <button

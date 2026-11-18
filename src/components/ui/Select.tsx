@@ -1,6 +1,6 @@
 import { SelectHTMLAttributes, forwardRef, useId } from 'react'
 import { Field } from './Field'
-import { fieldControlBase, fieldSizeClasses, type FieldSize } from './fieldStyles'
+import { fieldControlBase, fieldSizeClasses, fieldWidth, type FieldSize } from './fieldStyles'
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
@@ -19,7 +19,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
     <select
       ref={ref}
       id={selectId}
-      className={`${fieldControlBase} ${fieldSizeClasses[fieldSize]} ${className}`}
+      className={`${fieldControlBase} ${fieldWidth(className)} ${fieldSizeClasses[fieldSize]} pr-8 ${className}`}
       aria-invalid={error ? true : undefined}
       {...props}
     >

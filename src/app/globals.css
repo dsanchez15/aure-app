@@ -127,6 +127,28 @@ body {
     letter-spacing: var(--tracking-body);
 }
 
+/* Las opciones nativas no heredan tokens en todos los navegadores:
+   sin esto, el desplegable pinta fondo claro con texto claro en dark. */
+select {
+    accent-color: var(--color-primary);
+}
+
+select option {
+    background-color: var(--color-bg-surface);
+    color: var(--color-text-primary);
+}
+
+select option:checked,
+select option:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+}
+
+/* Controles nativos (date, select, scrollbars) en modo oscuro */
+.dark {
+    color-scheme: dark;
+}
+
 /* Motion tokens — ADR: 120ms estado / 200ms superficie */
 @utility transition-state {
     transition-property: color, background-color, border-color, outline-color, box-shadow, opacity, transform;

@@ -1,20 +1,23 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Badge, Button, EmptyState, Spinner } from '@/components/ui'
+import { Badge, Button, Drawer, EmptyState, Spinner } from '@/components/ui'
 import { PageHeader } from '@/components/layout'
 import { useAppTranslation } from '@/components/LanguageProvider'
 import { useTodos } from '@/hooks/useTodos'
 import { useDebounce } from '@/hooks/useDebounce'
 import TodoCreateForm from './TodoCreateForm'
-import TodoFilters, { type TodoFiltersValue } from './TodoFilters'
+import TodoFilters, { type TodoFiltersValue, type TodoSort } from './TodoFilters'
 import TodoItems from './TodoItems'
 import TodoEditModal from './TodoEditModal'
 import TodoDetailsSidebar from './TodoDetailsSidebar'
 import type { Todo } from '@/types/todo'
 
+const STORAGE_KEY = 'aure-todo-filters'
+
 const INITIAL_FILTERS: TodoFiltersValue = {
   viewMode: 'all',
+  sort: 'newest',
   groupBy: 'none',
   search: '',
   priority: '',
@@ -22,9 +25,30 @@ const INITIAL_FILTERS: TodoFiltersValue = {
   status: '',
 }
 
+function readStoredFilters(): TodoFiltersValue | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.sessionStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<TodoFiltersValue>
+    return { ...INITIAL_FILTERS, ...parsed }
+  } catch {
+    return null
+  }
+}
+
+function sortByCreatedAt(todos: Todo[], sort: TodoSort): Todo[] {
+  return [...todos].sort((a, b) => {
+    const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    return sort === 'oldest' ? diff : -diff
+  })
+}
+
 export default function TodoList() {
   const { t } = useAppTranslation()
   const [filters, setFilters] = useState<TodoFiltersValue>(INITIAL_FILTERS)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -34,7 +58,6 @@ export default function TodoList() {
     todos,
     groupedTodos,
     categories,
-    metrics,
     loading,
     error,
     apiError,
@@ -53,6 +76,18 @@ export default function TodoList() {
   useEffect(() => {
     fetchTodos({ viewMode, groupBy, search: debouncedSearch, priority, category, status })
   }, [fetchTodos, viewMode, groupBy, debouncedSearch, priority, category, status])
+
+  // Los filtros sobreviven a un refresh durante la sesión del navegador.
+  useEffect(() => {
+    const stored = readStoredFilters()
+    if (stored) setFilters(stored)
+    setLoaded(true)
+  }, [])
+
+  useEffect(() => {
+    if (!loaded) return
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters))
+  }, [filters, loaded])
 
   // Keyboard shortcut: "n" to focus the new-todo input
   useEffect(() => {
@@ -102,28 +137,27 @@ export default function TodoList() {
     )
   }
 
-  const subtitle = t('todos.subtitle', {
-    pending: metrics?.pending ?? 0,
-    completed: metrics?.completed ?? 0,
-    rate: metrics?.completionRate ?? 0,
-  })
+  const sortedTodos = sortByCreatedAt(todos, filters.sort)
+  const sortedGroups = groupedTodos
+    ? Object.fromEntries(
+        Object.entries(groupedTodos).map(([group, list]) => [
+          group,
+          sortByCreatedAt(list as Todo[], filters.sort),
+        ])
+      )
+    : null
+
+  const countable = groupedTodos ? (Object.values(groupedTodos).flat() as Todo[]) : todos
+  const counts = {
+    pending: countable.filter((todo) => !todo.completed).length,
+    completed: countable.filter((todo) => todo.completed).length,
+  }
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title={t('todos.title')}
-        description={subtitle}
-        actions={
-          <Button variant="secondary" onClick={() => inputRef.current?.focus()}>
-            <span aria-hidden="true" className="material-symbols-outlined text-lg">
-              add
-            </span>
-            {t('todos.add')}
-          </Button>
-        }
-      />
+      <PageHeader title={t('todos.title')} />
 
-      <div className="flex flex-col gap-6 xl:flex-row">
+      <div className="flex flex-col gap-6">
         {/* Main content */}
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <TodoCreateForm inputRef={inputRef} onAdd={createTodo} />
@@ -151,11 +185,19 @@ export default function TodoList() {
             </div>
           )}
 
-          <TodoFilters value={filters} categories={categories} onChange={setFilters} onClear={clearFilters} />
+          <TodoFilters
+            value={filters}
+            categories={categories}
+            counts={counts}
+            isOpen={filtersOpen}
+            onToggle={() => setFiltersOpen((open) => !open)}
+            onChange={setFilters}
+            onClear={clearFilters}
+          />
 
-          {groupedTodos ? (
+          {sortedGroups ? (
             <div className="flex flex-col gap-6">
-              {Object.entries(groupedTodos).map(([groupName, groupTodos]) => (
+              {Object.entries(sortedGroups).map(([groupName, groupTodos]) => (
                 <section key={groupName} className="flex flex-col gap-3">
                   <div className="flex items-center gap-2">
                     <span aria-hidden="true" className="h-2 w-2 rounded-pill bg-primary" />
@@ -166,14 +208,14 @@ export default function TodoList() {
                 </section>
               ))}
             </div>
-          ) : todos.length === 0 ? (
+          ) : sortedTodos.length === 0 ? (
             <EmptyState
               icon="checklist"
               title={t('todos.noTodos')}
               description={t('todos.adjustFilters')}
             />
           ) : (
-            <TodoItems todos={todos} selectedId={selectedTodo?.id ?? null} {...itemHandlers} />
+            <TodoItems todos={sortedTodos} selectedId={selectedTodo?.id ?? null} {...itemHandlers} />
           )}
 
           {editingTodo && (
@@ -185,9 +227,15 @@ export default function TodoList() {
             />
           )}
         </div>
-
-        <TodoDetailsSidebar todo={selectedTodo} metrics={metrics} />
       </div>
+
+      <Drawer
+        isOpen={selectedTodo !== null}
+        onClose={() => setSelectedTodo(null)}
+        title={t('todos.details.title')}
+      >
+        <TodoDetailsSidebar todo={selectedTodo} />
+      </Drawer>
     </div>
   )
 }

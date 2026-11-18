@@ -1,6 +1,6 @@
 import { TextareaHTMLAttributes, useId } from 'react'
 import { Field } from './Field'
-import { fieldControlBase } from './fieldStyles'
+import { fieldControlBase, fieldWidth } from './fieldStyles'
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
@@ -15,7 +15,7 @@ export function Textarea({ label, error, hint, className = '', id, rows = 3, ...
     <textarea
       id={textareaId}
       rows={rows}
-      className={`${fieldControlBase} px-4 py-2.5 ${className}`}
+      className={`${fieldControlBase} ${fieldWidth(className)} px-4 py-2.5 ${className}`}
       aria-invalid={error ? true : undefined}
       {...props}
     />
